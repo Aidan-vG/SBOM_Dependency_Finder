@@ -1,0 +1,8 @@
+# AWS Connector related dependencies
+netty-codec-http2
+netty-codec-http
+netty-handler
+s3
+kms
+aws-core
+netty-nio-client

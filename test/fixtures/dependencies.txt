@@ -1,0 +1,14 @@
+# Sample dependency list for batch testing
+# Lines starting with # are comments
+
+# Email Connector dependencies
+jakarta.mail-api
+angus-mail
+
+# Common libraries
+commons-lang3
+commons-text
+jackson-databind
+
+# Non-existent dependency
+nonexistent-library-xyz

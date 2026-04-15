@@ -1,8 +1,12 @@
 import { Command } from 'commander';
 import ora from 'ora';
+import chalk from 'chalk';
+import * as fs from 'fs';
 import { parseSbomFile, SbomParseError } from './sbom/parser.js';
 import { buildGraph, searchComponents, traceToRoot } from './sbom/graph.js';
 import { formatTraceResult, formatTraceResultJson, formatSearchResults, formatError } from './output/formatter.js';
+import { readDependencyList, traceBatch, generateBatchSummary } from './batch.js';
+import { formatBatchTable, formatBatchCsv, formatBatchJson } from './output/batch-formatter.js';
 
 const program = new Command();
 
@@ -98,6 +102,74 @@ program
         console.log(formatTraceResultJson(traceResult));
       } else {
         console.log(formatTraceResult(traceResult, { verbose: options.verbose }));
+      }
+
+    } catch (error) {
+      if (error instanceof SbomParseError) {
+        console.error(formatError(error));
+        process.exit(1);
+      }
+      throw error;
+    }
+  });
+
+program
+  .command('trace-batch')
+  .description('Trace multiple dependencies from a file (one per line)')
+  .argument('<sbom-file>', 'Path to the CycloneDX JSON SBOM file')
+  .argument('<dependency-file>', 'Path to file containing dependency names (one per line)')
+  .option('--format <format>', 'Output format: table, csv, json', 'table')
+  .option('--output <file>', 'Write output to file instead of stdout')
+  .action(async (sbomFile: string, dependencyFile: string, options) => {
+    try {
+      // Parse SBOM
+      const parseSpinner = ora('Parsing SBOM file...').start();
+      const document = parseSbomFile(sbomFile);
+      parseSpinner.succeed(`Parsed SBOM with ${document.components.length} components`);
+
+      // Build graph
+      const graphSpinner = ora('Building dependency graph...').start();
+      const graph = buildGraph(document);
+      graphSpinner.succeed('Graph built');
+
+      // Read dependency list
+      const readSpinner = ora('Reading dependency list...').start();
+      const dependencies = readDependencyList(dependencyFile);
+      readSpinner.succeed(`Loaded ${dependencies.length} dependencies to trace`);
+
+      // Trace in batch
+      let currentSpinner: ReturnType<typeof ora> | null = null;
+      const results = traceBatch(graph, dependencies, (current, total, dependency) => {
+        if (currentSpinner) {
+          currentSpinner.text = `Tracing ${current}/${total}: ${dependency}`;
+        } else {
+          currentSpinner = ora(`Tracing ${current}/${total}: ${dependency}`).start();
+        }
+      });
+
+      if (currentSpinner) {
+        currentSpinner.succeed(`Traced ${dependencies.length} dependencies`);
+      }
+
+      // Generate summary
+      const summary = generateBatchSummary(results);
+
+      // Format output
+      let output: string;
+      if (options.format === 'csv') {
+        output = formatBatchCsv(results);
+      } else if (options.format === 'json') {
+        output = formatBatchJson(results, summary);
+      } else {
+        output = formatBatchTable(results, summary);
+      }
+
+      // Write output
+      if (options.output) {
+        fs.writeFileSync(options.output, output, 'utf-8');
+        console.log(chalk.green(`\n✓ Results written to ${options.output}`));
+      } else {
+        console.log(output);
       }
 
     } catch (error) {
