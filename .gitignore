@@ -16,3 +16,8 @@ coverage/
 # Environment
 .env
 .env.local
+
+# Build artifacts
+sea-config.json
+sea-prep.blob
+bin/

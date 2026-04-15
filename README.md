@@ -33,6 +33,26 @@ This tool enables support engineers to quickly identify the source of any depend
 
 ## Installation
 
+### Option 1: Standalone Executable (Recommended)
+
+Download the pre-built executable for your platform:
+
+**Windows:**
+1. Download `sbom-finder.exe` from the releases page
+2. Double-click `sbom-finder.exe` to launch
+3. The interactive CLI will open automatically
+
+**macOS:**
+1. Download `sbom-finder-macos-x64` (Intel) or `sbom-finder-macos-arm64` (Apple Silicon)
+2. Make it executable: `chmod +x sbom-finder-macos-*`
+3. Run: `./sbom-finder-macos-x64` or `./sbom-finder-macos-arm64`
+
+**No Node.js installation required!** The executables are completely standalone.
+
+### Option 2: From Source
+
+If you want to run from source or contribute to development:
+
 ```bash
 npm install
 ```
@@ -41,8 +61,11 @@ npm install
 
 ### Interactive Mode (Recommended)
 
-Simply run the tool without any arguments for an interactive, guided experience:
+**With standalone executable:**
+- Windows: Double-click `sbom-finder.exe`
+- macOS/Linux: Run `./sbom-finder-macos-x64` (or appropriate executable)
 
+**From source:**
 ```bash
 npx tsx src/index.ts
 ```
@@ -216,11 +239,26 @@ npx tsx src/index.ts info <sbom-file>
 npm test
 ```
 
-### Build
+### Build from Source
 
 ```bash
 npm run build
 ```
+
+### Build Standalone Executables
+
+**Windows executable:**
+```bash
+npm run build:exe
+```
+
+**macOS executables (must be run on macOS):**
+```bash
+chmod +x scripts/build-exe-mac.sh
+./scripts/build-exe-mac.sh
+```
+
+Executables are created in the `bin/` directory.
 
 ## Project Status
 
@@ -228,6 +266,7 @@ npm run build
 - SBOM parsing and validation (CycloneDX 1.4)
 - Dependency graph construction and traversal
 - CLI commands: `trace`, `trace-batch`, `search`, `info`
+- Interactive mode for easy use
 - Multiple output formats: table, CSV, JSON
 - Performance optimized (~5x faster with caching)
 - Loading indicators and progress tracking
@@ -238,10 +277,12 @@ npm run build
 - AI agent integration deemed unnecessary
 - Core functionality fully meets requirements without AI
 
-**Phase 3: Next**
-- Standalone executable packaging (Windows/Mac)
-- CI/CD pipeline for automated builds
-- Distribution as npm package
+**Phase 3: Complete ✓**
+- Standalone executable packaging using Node.js SEA (Single Executable Applications)
+- Windows: `sbom-finder.exe` (92MB)
+- macOS: Intel and Apple Silicon executables
+- No Node.js installation required for end users
+- Double-click to launch interactive mode
 
 ## Technical Details
 
