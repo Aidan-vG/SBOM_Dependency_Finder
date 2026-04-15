@@ -22,7 +22,6 @@
   "author": "Aidan van Geest <aidan.van.geest@mendix.com>",
   "license": "MIT",
   "dependencies": {
-    "@aws-sdk/client-bedrock-runtime": "^3.709.0",
     "@inquirer/prompts": "^8.4.1",
     "chalk": "^5.4.1",
     "commander": "^12.1.0",
