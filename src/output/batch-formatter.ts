@@ -7,11 +7,12 @@ import { isMendixMarketplaceComponent } from '../sbom/parser.js';
  */
 export function formatBatchTable(results: BatchTraceResult[], summary: BatchSummary): string {
   const lines: string[] = [];
+  const dependencySummaries: string[] = []; // Collect summaries for the end
 
   lines.push(chalk.bold('\n=== Batch Dependency Trace Results ===\n'));
 
-  // Summary
-  lines.push(chalk.bold('Summary:'));
+  // Overall statistics
+  lines.push(chalk.bold('Statistics:'));
   lines.push(`  Total dependencies scanned: ${summary.total}`);
   lines.push(`  ${chalk.green('Found:')} ${summary.found}`);
   lines.push(`  ${chalk.red('Not found:')} ${summary.notFound}`);
@@ -82,34 +83,43 @@ export function formatBatchTable(results: BatchTraceResult[], summary: BatchSumm
           lines.push(`  ${chalk.gray(`... and ${completePaths.length - 3} more path${completePaths.length - 3 === 1 ? '' : 's'}`)}`);
         }
 
-        // Add summary
-        lines.push('');
-        lines.push(`  ${chalk.bold('Summary:')}`);
+        // Generate summary for this dependency
         const rootComponents = completePaths.map(p => {
           const root = p.components[p.components.length - 1];
           return root.name + (root.version ? ' v' + root.version : '');
         });
         const uniqueRoots = [...new Set(rootComponents)];
 
-        let summary: string;
+        let depSummary: string;
         if (completePaths[0].components.length === 1) {
-          summary = `The dependency "${result.dependency}" is a root marketplace module itself.`;
+          depSummary = `The dependency "${result.dependency}" is a root marketplace module itself.`;
         } else if (completePaths[0].components.length === 2) {
-          summary = `The dependency "${result.dependency}" is a direct dependency of the marketplace module "${uniqueRoots[0]}".`;
+          depSummary = `The dependency "${result.dependency}" is a direct dependency of the marketplace module "${uniqueRoots[0]}".`;
         } else {
           const depth = completePaths[0].components.length - 2;
-          summary = `The dependency "${result.dependency}" is a transitive dependency (depth: ${depth}) brought in through: ${uniqueRoots.join(', ')}.`;
+          depSummary = `The dependency "${result.dependency}" is a transitive dependency (depth: ${depth}) brought in through: ${uniqueRoots.join(', ')}.`;
         }
-        lines.push(`  ${summary}`);
+        dependencySummaries.push(depSummary);
       } else {
         // Found but no marketplace path
         lines.push(`  ${chalk.yellow('No marketplace module found (orphan dependency)')}`);
+        dependencySummaries.push(`The dependency "${result.dependency}" has no marketplace module (orphan dependency).`);
       }
     } else {
       // Not found
       lines.push(chalk.red('✗') + ` ${chalk.bold(result.dependency)}`);
       lines.push(`  ${chalk.gray(result.error || 'Not found')}`);
+      dependencySummaries.push(`The dependency "${result.dependency}" was not found in the SBOM.`);
     }
+    lines.push('');
+  }
+
+  // Add consolidated summary at the end
+  if (dependencySummaries.length > 0) {
+    lines.push(chalk.bold('=== Summary ===\n'));
+    dependencySummaries.forEach(summary => {
+      lines.push(`- ${summary}`);
+    });
     lines.push('');
   }
 
