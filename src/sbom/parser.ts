@@ -122,10 +122,20 @@ function validateSbom(data: unknown): SbomDocument {
  * Check if a component is a Mendix marketplace module/widget
  */
 export function isMendixMarketplaceComponent(component: SbomComponent): boolean {
-  return (
-    component.purl?.startsWith('pkg:mendix/') === true ||
-    (component.type === 'framework' && !component.purl?.startsWith('pkg:maven/'))
-  );
+  // Check for Mendix marketplace purl (pkg:mendix/... with type=module or type=framework)
+  if (component.purl?.startsWith('pkg:mendix/')) {
+    // Verify it's actually a marketplace module (not a JAR with mendix namespace)
+    if (component.purl.includes('type=module') || component.purl.includes('type=framework')) {
+      return true;
+    }
+  }
+
+  // Framework type without a Maven purl (likely Mendix runtime or marketplace)
+  if (component.type === 'framework' && !component.purl?.startsWith('pkg:maven/')) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
