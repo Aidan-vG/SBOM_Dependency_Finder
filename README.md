@@ -15,7 +15,7 @@ The current manual investigation process is time-consuming and delays issue reso
 This tool enables support engineers to quickly identify the source of any dependency within a Mendix project by:
 
 1. **Accepting user input**: The name of a specific JAR dependency and an SBOM (Software Bill of Materials) file from a Mendix Studio Pro project
-2. **AI-powered analysis**: Using an AI agent to scan and analyze the SBOM structure
+2. **Fast graph analysis**: Using optimized dependency graph traversal to scan and analyze the SBOM structure
 3. **Dependency tree visualization**: Providing a complete dependency tree showing all levels from the flagged dependency up to the parent Mendix Marketplace widget/module
 
 ## Benefits
@@ -190,5 +190,6 @@ npm run build
 
 - **Runtime**: Node.js + TypeScript
 - **SBOM Format**: CycloneDX 1.4 JSON
-- **AI**: AWS Bedrock Converse API (Phase 2)
+- **Algorithm**: Graph traversal with caching and fuzzy search (Levenshtein distance)
 - **Testing**: Vitest
+- **Performance**: ~3-5 seconds per dependency trace
