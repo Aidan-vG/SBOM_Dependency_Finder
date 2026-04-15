@@ -39,7 +39,64 @@ npm install
 
 ## Usage
 
-### Trace a Dependency
+### Interactive Mode (Recommended)
+
+Simply run the tool without any arguments for an interactive, guided experience:
+
+```bash
+npx tsx src/index.ts
+```
+
+**Interactive menu:**
+1. **Trace a single dependency** - Enter one dependency name and see its full chain
+2. **Trace multiple dependencies** - Enter dependency names one by one (type "done" when finished)
+3. **Search for components** - Find components by name
+4. **Show SBOM info** - Display SBOM statistics
+
+**Benefits:**
+- No need to remember command syntax
+- Step-by-step prompts with validation
+- File path validation (checks if SBOM exists)
+- Type "done" when finished entering dependencies
+- Option to perform multiple operations in one session
+
+**Example session:**
+```
+🔍 SBOM Dependency Finder - Interactive Mode
+
+? Enter the path to your SBOM file: project-sbom.json
+✔ Loaded SBOM with 65 components and 2 marketplace module(s)
+
+What would you like to do?
+
+1. Trace a single dependency
+2. Trace multiple dependencies (batch mode)
+3. Search for components
+4. Show SBOM info
+
+? Enter your choice (1-4): 2
+
+📋 Batch Trace Mode
+
+Enter dependency names one by one. Type "done" when finished.
+
+? Dependency #1 (or "done" to finish): jakarta.mail-api
+? Dependency #2 (or "done" to finish): netty-codec-http2
+? Dependency #3 (or "done" to finish): done
+
+🔄 Tracing 2 dependencies...
+
+✔ Traced 2 dependencies
+
+=== Batch Dependency Trace Results ===
+...
+```
+
+### Command-Line Mode
+
+For automation and scripting, use the traditional command-line interface:
+
+#### Trace a Dependency
 
 Trace a vulnerable JAR dependency to its parent marketplace module:
 

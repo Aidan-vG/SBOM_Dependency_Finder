@@ -7,6 +7,7 @@ import { buildGraph, searchComponents, traceToRoot } from './sbom/graph.js';
 import { formatTraceResult, formatTraceResultJson, formatSearchResults, formatError } from './output/formatter.js';
 import { readDependencyList, traceBatch, generateBatchSummary } from './batch.js';
 import { formatBatchTable, formatBatchCsv, formatBatchJson } from './output/batch-formatter.js';
+import { runInteractive } from './interactive.js';
 
 const program = new Command();
 
@@ -14,6 +15,14 @@ program
   .name('sbom-finder')
   .description('Trace vulnerable JAR dependencies to their parent Mendix Marketplace widgets/modules')
   .version('0.1.0');
+
+// Interactive mode command (default when no command specified)
+program
+  .command('interactive', { isDefault: true })
+  .description('Run in interactive mode (default)')
+  .action(async () => {
+    await runInteractive();
+  });
 
 program
   .command('trace')
