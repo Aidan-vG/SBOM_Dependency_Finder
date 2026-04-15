@@ -19,30 +19,76 @@ export function formatBatchTable(results: BatchTraceResult[], summary: BatchSumm
   lines.push(`  ${chalk.yellow('Without marketplace paths:')} ${summary.withoutMarketplacePaths}`);
   lines.push('');
 
-  // Results table
+  // Results table with full dependency trees
   lines.push(chalk.bold('Detailed Results:\n'));
 
-  for (const result of results) {
+  for (let i = 0; i < results.length; i++) {
+    const result = results[i];
+
+    // Add separator between results (except before first)
+    if (i > 0) {
+      lines.push(chalk.gray('─'.repeat(60)));
+      lines.push('');
+    }
+
     if (result.found && result.result) {
       const completePaths = result.result.paths.filter(p => p.isComplete);
+      const target = result.result.target;
+      const targetDisplay = target.version ? `${target.name} v${target.version}` : target.name;
+
+      lines.push(chalk.green('✓') + ` ${chalk.bold(result.dependency)}`);
+      lines.push(`  ${chalk.gray('Target:')} ${targetDisplay} ${chalk.gray(`[${target.type}]`)}`);
 
       if (completePaths.length > 0) {
-        // Found with marketplace path
-        const firstPath = completePaths[0];
-        const root = firstPath.components[firstPath.components.length - 1];
-        const rootName = root.version ? `${root.name} v${root.version}` : root.name;
+        lines.push(`  ${chalk.gray('Found')} ${chalk.green(completePaths.length)} ${chalk.gray(`path${completePaths.length === 1 ? '' : 's'} to marketplace modules:`)}`);
+        lines.push('');
 
-        lines.push(chalk.green('✓') + ` ${chalk.bold(result.dependency)}`);
-        lines.push(`  → ${chalk.blue(rootName)} (${completePaths.length} path${completePaths.length === 1 ? '' : 's'})`);
+        // Show all paths (limit to first 3 for readability)
+        const pathsToShow = completePaths.slice(0, 3);
+        pathsToShow.forEach((path, pathIndex) => {
+          lines.push(`  ${chalk.bold(`Path ${pathIndex + 1}:`)}`);
+
+          // Reverse path so root is at the top
+          const reversed = [...path.components].reverse();
+          reversed.forEach((component, compIndex) => {
+            const isTarget = component['bom-ref'] === target['bom-ref'];
+            const indent = '    ' + ('  '.repeat(compIndex));
+            const treeChar = compIndex === 0 ? '' : '└── ';
+
+            let displayName = component.version ? `${component.name} v${component.version}` : component.name;
+
+            // Color code by type
+            if (isMendixMarketplaceComponent(component)) {
+              displayName = chalk.blue(displayName) + ' ' + chalk.blue('[Marketplace Module]');
+            } else {
+              displayName = chalk.yellow(displayName) + ' ' + chalk.gray('[JAR]');
+            }
+
+            // Mark target
+            if (isTarget) {
+              displayName += ' ' + chalk.red('← target');
+            }
+
+            lines.push(`${indent}${treeChar}${displayName}`);
+          });
+
+          if (pathIndex < pathsToShow.length - 1) {
+            lines.push('');
+          }
+        });
+
+        if (completePaths.length > 3) {
+          lines.push('');
+          lines.push(`  ${chalk.gray(`... and ${completePaths.length - 3} more path${completePaths.length - 3 === 1 ? '' : 's'}`)}`);
+        }
       } else {
         // Found but no marketplace path
-        lines.push(chalk.yellow('⚠') + ` ${chalk.bold(result.dependency)}`);
-        lines.push(`  → ${chalk.yellow('No marketplace module found (orphan dependency)')}`);
+        lines.push(`  ${chalk.yellow('No marketplace module found (orphan dependency)')}`);
       }
     } else {
       // Not found
       lines.push(chalk.red('✗') + ` ${chalk.bold(result.dependency)}`);
-      lines.push(`  → ${chalk.gray(result.error || 'Not found')}`);
+      lines.push(`  ${chalk.gray(result.error || 'Not found')}`);
     }
     lines.push('');
   }
