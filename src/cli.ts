@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import ora from 'ora';
 import { parseSbomFile, SbomParseError } from './sbom/parser.js';
 import { buildGraph, searchComponents, traceToRoot } from './sbom/graph.js';
 import { formatTraceResult, formatTraceResultJson, formatSearchResults, formatError } from './output/formatter.js';
@@ -24,21 +25,23 @@ program
   .action(async (sbomFile: string, dependencyName: string, options) => {
     try {
       // Parse SBOM
-      console.log(`\nParsing SBOM: ${sbomFile}...`);
+      const parseSpinner = ora('Parsing SBOM file...').start();
       const document = parseSbomFile(sbomFile);
-      console.log(`✓ Parsed SBOM with ${document.components.length} components and ${document.dependencies.length} dependency relationships\n`);
+      parseSpinner.succeed(`Parsed SBOM with ${document.components.length} components and ${document.dependencies.length} dependency relationships`);
 
       // Build graph
+      const graphSpinner = ora('Building dependency graph...').start();
       const graph = buildGraph(document);
-      console.log(`✓ Built dependency graph with ${graph.rootComponents.length} root component(s)\n`);
+      graphSpinner.succeed(`Built dependency graph with ${graph.rootComponents.length} root component(s)`);
 
       if (options.ai) {
-        console.log('AI agent mode is not yet implemented. Using direct graph traversal (--no-ai mode).\n');
+        console.log('\n⚠ AI agent mode is not yet implemented. Using direct graph traversal (--no-ai mode).\n');
       }
 
       // Search for the dependency
-      console.log(`Searching for dependency: "${dependencyName}"...`);
+      const searchSpinner = ora(`Searching for "${dependencyName}"...`).start();
       const searchResults = searchComponents(graph, dependencyName, { limit: 10 });
+      searchSpinner.stop();
 
       if (searchResults.length === 0) {
         console.log(formatError(new Error(`No components found matching "${dependencyName}"`)));
@@ -49,23 +52,23 @@ program
         process.exit(1);
       }
 
-      console.log(`✓ Found ${searchResults.length} matching component(s)\n`);
+      console.log(`\n✓ Found ${searchResults.length} matching component(s)`);
 
       // Use the best match (highest score)
       const bestMatch = searchResults[0];
-      console.log(`Using best match: ${bestMatch.name}${bestMatch.version ? ' v' + bestMatch.version : ''}`);
+      console.log(`\nUsing best match: ${bestMatch.name}${bestMatch.version ? ' v' + bestMatch.version : ''}`);
 
       if (searchResults.length > 1) {
         console.log(`\nOther matches found:`);
         searchResults.slice(1, 5).forEach((result, index) => {
           console.log(`  ${index + 2}. ${result.name}${result.version ? ' v' + result.version : ''}`);
         });
-        console.log('');
       }
 
       // Trace to root
-      console.log(`Tracing dependency chain...`);
+      const traceSpinner = ora('Tracing dependency chain...').start();
       const traceResult = traceToRoot(graph, bestMatch.bomRef);
+      traceSpinner.succeed('Dependency chain traced');
 
       // Generate summary
       if (traceResult.paths.length > 0) {
@@ -116,19 +119,23 @@ program
   .action(async (sbomFile: string, query: string, options) => {
     try {
       // Parse SBOM
-      console.log(`\nParsing SBOM: ${sbomFile}...`);
+      const parseSpinner = ora('Parsing SBOM file...').start();
       const document = parseSbomFile(sbomFile);
-      console.log(`✓ Parsed SBOM with ${document.components.length} components\n`);
+      parseSpinner.succeed(`Parsed SBOM with ${document.components.length} components`);
 
       // Build graph
+      const graphSpinner = ora('Building dependency graph...').start();
       const graph = buildGraph(document);
+      graphSpinner.succeed('Graph built');
 
       // Search
+      const searchSpinner = ora(`Searching for "${query}"...`).start();
       const typeFilter = options.type === 'all' ? undefined : options.type;
       const results = searchComponents(graph, query, {
         typeFilter: typeFilter as any,
         limit: parseInt(options.limit, 10),
       });
+      searchSpinner.stop();
 
       console.log(formatSearchResults(results));
 
@@ -148,8 +155,10 @@ program
   .action(async (sbomFile: string) => {
     try {
       // Parse SBOM
+      const spinner = ora('Analyzing SBOM...').start();
       const document = parseSbomFile(sbomFile);
       const graph = buildGraph(document);
+      spinner.succeed('Analysis complete');
 
       console.log('\n=== SBOM Information ===\n');
       console.log(`Format: ${document.bomFormat} ${document.specVersion}`);

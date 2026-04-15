@@ -236,6 +236,7 @@ export function getDependencies(graph: ParsedSbom, bomRef: string): SbomComponen
 
 /**
  * Trace all paths from a target component up to root marketplace modules
+ * Optimized for performance with early termination and path deduplication
  */
 export function traceToRoot(graph: ParsedSbom, bomRef: string): TraceResult {
   const target = graph.componentsByRef.get(bomRef);
@@ -243,23 +244,43 @@ export function traceToRoot(graph: ParsedSbom, bomRef: string): TraceResult {
     throw new Error(`Component not found: ${bomRef}`);
   }
 
-  const paths: DependencyPath[] = [];
+  const completePaths: DependencyPath[] = [];
+  const incompletePaths: DependencyPath[] = [];
+
+  // Track which refs we've already explored to avoid redundant work
+  const exploredPaths = new Map<string, boolean>(); // ref -> isMarketplaceRoot
+
+  // BFS with path deduplication
   const queue: Array<{ path: string[]; visited: Set<string> }> = [
     { path: [bomRef], visited: new Set([bomRef]) }
   ];
 
-  const maxIterations = 1000; // Safety limit
+  const maxIterations = 5000; // Increased limit but with better pruning
   let iterations = 0;
 
   while (queue.length > 0 && iterations < maxIterations) {
     iterations++;
     const current = queue.shift()!;
     const currentRef = current.path[current.path.length - 1];
+
+    // Check if we've already explored this ref
+    if (exploredPaths.has(currentRef)) {
+      const isRoot = exploredPaths.get(currentRef)!;
+      if (isRoot) {
+        // We know this leads to a marketplace root, just record the path
+        const components = current.path
+          .map(ref => graph.componentsByRef.get(ref))
+          .filter((c): c is SbomComponent => c !== undefined);
+        completePaths.push({ components, isComplete: true });
+      }
+      continue;
+    }
+
     const currentComponent = graph.componentsByRef.get(currentRef);
 
     // Skip if component doesn't exist (dangling reference in dependencies)
     if (!currentComponent) {
-      console.warn(`Warning: Component reference not found: ${currentRef}`);
+      exploredPaths.set(currentRef, false);
       continue;
     }
 
@@ -268,14 +289,11 @@ export function traceToRoot(graph: ParsedSbom, bomRef: string): TraceResult {
                    (!graph.reverseDeps.has(currentRef) || graph.reverseDeps.get(currentRef)!.length === 0);
 
     if (isRoot) {
-      // Found a complete path - filter out any missing components
+      exploredPaths.set(currentRef, true);
       const components = current.path
         .map(ref => graph.componentsByRef.get(ref))
         .filter((c): c is SbomComponent => c !== undefined);
-      paths.push({
-        components,
-        isComplete: true,
-      });
+      completePaths.push({ components, isComplete: true });
       continue;
     }
 
@@ -283,14 +301,14 @@ export function traceToRoot(graph: ParsedSbom, bomRef: string): TraceResult {
     const parents = graph.reverseDeps.get(currentRef) || [];
 
     if (parents.length === 0) {
-      // Orphan path - no parent, but not a marketplace root
-      const components = current.path
-        .map(ref => graph.componentsByRef.get(ref))
-        .filter((c): c is SbomComponent => c !== undefined);
-      paths.push({
-        components,
-        isComplete: false,
-      });
+      exploredPaths.set(currentRef, false);
+      // Orphan path - only add if we don't have any complete paths yet
+      if (completePaths.length === 0) {
+        const components = current.path
+          .map(ref => graph.componentsByRef.get(ref))
+          .filter((c): c is SbomComponent => c !== undefined);
+        incompletePaths.push({ components, isComplete: false });
+      }
       continue;
     }
 
@@ -311,9 +329,8 @@ export function traceToRoot(graph: ParsedSbom, bomRef: string): TraceResult {
     }
   }
 
-  if (iterations >= maxIterations) {
-    console.warn('Warning: Maximum iterations reached during graph traversal. Results may be incomplete.');
-  }
+  // Return complete paths first, fall back to incomplete if none found
+  const paths = completePaths.length > 0 ? completePaths : incompletePaths;
 
   return {
     target,
