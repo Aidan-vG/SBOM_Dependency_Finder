@@ -81,6 +81,26 @@ export function formatBatchTable(results: BatchTraceResult[], summary: BatchSumm
           lines.push('');
           lines.push(`  ${chalk.gray(`... and ${completePaths.length - 3} more path${completePaths.length - 3 === 1 ? '' : 's'}`)}`);
         }
+
+        // Add summary
+        lines.push('');
+        lines.push(`  ${chalk.bold('Summary:')}`);
+        const rootComponents = completePaths.map(p => {
+          const root = p.components[p.components.length - 1];
+          return root.name + (root.version ? ' v' + root.version : '');
+        });
+        const uniqueRoots = [...new Set(rootComponents)];
+
+        let summary: string;
+        if (completePaths[0].components.length === 1) {
+          summary = `The dependency "${result.dependency}" is a root marketplace module itself.`;
+        } else if (completePaths[0].components.length === 2) {
+          summary = `The dependency "${result.dependency}" is a direct dependency of the marketplace module "${uniqueRoots[0]}".`;
+        } else {
+          const depth = completePaths[0].components.length - 2;
+          summary = `The dependency "${result.dependency}" is a transitive dependency (depth: ${depth}) brought in through: ${uniqueRoots.join(', ')}.`;
+        }
+        lines.push(`  ${summary}`);
       } else {
         // Found but no marketplace path
         lines.push(`  ${chalk.yellow('No marketplace module found (orphan dependency)')}`);
