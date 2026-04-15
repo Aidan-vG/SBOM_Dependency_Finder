@@ -47,13 +47,12 @@ Trace a vulnerable JAR dependency to its parent marketplace module:
 npx tsx src/index.ts trace <sbom-file> <dependency-name> [options]
 
 # Example
-npx tsx src/index.ts trace project-sbom.json "commons-text" --no-ai
+npx tsx src/index.ts trace project-sbom.json "commons-text"
 ```
 
 **Options:**
-- `--no-ai` - Use direct graph traversal (default mode)
 - `--json` - Output results as JSON
-- `--verbose` - Show detailed reasoning
+- `--verbose` - Show detailed output
 
 **Example Output:**
 ```

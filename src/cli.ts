@@ -20,12 +20,8 @@ program
   .description('Trace a dependency to its parent marketplace module')
   .argument('<sbom-file>', 'Path to the CycloneDX JSON SBOM file')
   .argument('<dependency-name>', 'Name of the JAR dependency to trace')
-  .option('--no-ai', 'Skip AI agent, use direct graph traversal only')
   .option('--json', 'Output results as JSON instead of formatted tree')
-  .option('--verbose', 'Show detailed reasoning and tool calls')
-  .option('--model <id>', 'Bedrock model ID', 'eu.anthropic.claude-sonnet-4-5-20250929-v1:0')
-  .option('--region <region>', 'AWS region', process.env.AWS_REGION || 'eu-central-1')
-  .option('--profile <name>', 'AWS profile', process.env.AWS_PROFILE || 'aidan-sandbox')
+  .option('--verbose', 'Show detailed reasoning')
   .action(async (sbomFile: string, dependencyName: string, options) => {
     try {
       // Parse SBOM
@@ -37,10 +33,6 @@ program
       const graphSpinner = ora('Building dependency graph...').start();
       const graph = buildGraph(document);
       graphSpinner.succeed(`Built dependency graph with ${graph.rootComponents.length} root component(s)`);
-
-      if (options.ai) {
-        console.log('\n⚠ AI agent mode is not yet implemented. Using direct graph traversal (--no-ai mode).\n');
-      }
 
       // Search for the dependency
       const searchSpinner = ora(`Searching for "${dependencyName}"...`).start();
