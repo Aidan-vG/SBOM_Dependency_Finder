@@ -25,14 +25,9 @@
 
 That's it! The executable is ready to use without `chmod +x`.
 
-## Which executable should I use?
-
-- **M1/M2/M3 Mac (Apple Silicon)** → `bin/sbom-finder-macos-arm64`
+The build automatically creates the correct executable for your Mac:
+- **Apple Silicon (M1/M2/M3)** → `bin/sbom-finder-macos-arm64`
 - **Intel Mac** → `bin/sbom-finder-macos-x64`
-
-Not sure? Run `uname -m`:
-- `arm64` → use arm64 version
-- `x86_64` → use x64 version
 
 ## Packaging for distribution
 
@@ -42,7 +37,9 @@ Create a zip file to share with others:
 npm run package
 ```
 
-This creates `sbom-finder-macos-v0.1.0.zip` with both executables.
+This creates `sbom-finder-macos-v0.1.0.zip` with your executable.
+
+**Note:** To include both Intel and Apple Silicon versions, you need to build on both types of Macs and combine the executables before packaging.
 
 ## Full documentation
 
