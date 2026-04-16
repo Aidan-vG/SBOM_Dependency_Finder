@@ -21,6 +21,7 @@ const seaConfig = {
   disableExperimentalSEAWarning: true,
   useSnapshot: false,
   useCodeCache: true,
+  assets: {}
 };
 
 writeFileSync(
