@@ -98,8 +98,9 @@ function validateSbom(data: unknown): SbomDocument {
   }
 
   // Validate dependencies
-  for (let i = 0; i < sbom.dependencies.length; i++) {
-    const dep = sbom.dependencies[i];
+  const deps = sbom.dependencies as unknown[];
+  for (let i = 0; i < deps.length; i++) {
+    const dep = deps[i];
     if (typeof dep !== 'object' || dep === null) {
       throw new SbomParseError(`Dependency at index ${i} is not a valid object`);
     }
@@ -115,7 +116,7 @@ function validateSbom(data: unknown): SbomDocument {
     }
   }
 
-  return sbom as SbomDocument;
+  return sbom as unknown as SbomDocument;
 }
 
 /**

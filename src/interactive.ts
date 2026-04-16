@@ -216,7 +216,7 @@ async function traceMultipleInteractive(graph: ParsedSbom): Promise<void> {
 
   console.log(chalk.bold(`\n🔄 Tracing ${dependencies.length} dependencies...\n`));
 
-  let currentSpinner: ReturnType<typeof ora> | null = null;
+  let currentSpinner = null as ReturnType<typeof ora> | null;
   const results = traceBatch(graph, dependencies, (current, total, dependency) => {
     if (currentSpinner) {
       currentSpinner.text = `Tracing ${current}/${total}: ${dependency}`;

@@ -1,11 +1,11 @@
 import chalk from 'chalk';
-import type { TraceResult, DependencyPath, SbomComponent } from '../sbom/types.js';
+import type { TraceResult, DependencyPath } from '../sbom/types.js';
 import { isMendixMarketplaceComponent, isJarLibrary, getComponentDisplayName } from '../sbom/parser.js';
 
 /**
  * Format trace results as a tree for terminal output
  */
-export function formatTraceResult(result: TraceResult, options?: { verbose?: boolean }): string {
+export function formatTraceResult(result: TraceResult, _options?: { verbose?: boolean }): string {
   const lines: string[] = [];
 
   lines.push(chalk.bold('\n=== Dependency Trace Results ===\n'));
@@ -79,7 +79,6 @@ function formatDependencyPath(
 
   reversed.forEach((component, index) => {
     const isTarget = component['bom-ref'] === targetBomRef;
-    const isLast = index === reversed.length - 1;
 
     // Determine indentation and tree characters
     const indent = '  '.repeat(index);
