@@ -21,3 +21,6 @@ coverage/
 sea-config.json
 sea-prep.blob
 bin/
+
+# Distribution packages
+sbom-finder-*.zip

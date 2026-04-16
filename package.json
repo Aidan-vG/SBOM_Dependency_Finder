@@ -10,6 +10,7 @@
     "build": "tsc",
     "build:bundle": "node scripts/build.mjs",
     "build:exe": "npm run build:bundle && node scripts/build-exe.mjs",
+    "package": "node scripts/package.mjs",
     "dev": "tsx src/index.ts",
     "test": "vitest run",
     "test:watch": "vitest"
