@@ -18,19 +18,6 @@ This tool enables support engineers to quickly identify the source of any depend
 2. **Fast graph analysis**: Using optimized dependency graph traversal to scan and analyze the SBOM structure
 3. **Dependency tree visualization**: Providing a complete dependency tree showing all levels from the flagged dependency up to the parent Mendix Marketplace widget/module
 
-## Benefits
-
-- **Faster troubleshooting**: Dramatically reduces time spent identifying dependency sources
-- **Complete visibility**: Shows the full dependency chain, including transitive dependencies
-- **Improved support efficiency**: Enables support engineers to quickly advise customers on which widgets/modules need updates or replacement
-- **Better security posture**: Helps customers address vulnerabilities more quickly by identifying exact sources
-
-## Target Users
-
-- Mendix Customer Support Engineers
-- Mendix Developers investigating security vulnerabilities
-- Security teams performing dependency audits on Mendix projects
-
 ## Installation
 
 ### Option 1: Standalone Executable (Recommended)
@@ -230,35 +217,6 @@ Display summary information about an SBOM:
 ```bash
 npx tsx src/index.ts info <sbom-file>
 ```
-
-## Development
-
-### Run Tests
-
-```bash
-npm test
-```
-
-### Build from Source
-
-```bash
-npm run build
-```
-
-### Build Standalone Executables
-
-**Windows executable:**
-```bash
-npm run build:exe
-```
-
-**macOS executables (must be run on macOS):**
-```bash
-chmod +x scripts/build-exe-mac.sh
-./scripts/build-exe-mac.sh
-```
-
-Executables are created in the `bin/` directory.
 
 ## Project Status
 
