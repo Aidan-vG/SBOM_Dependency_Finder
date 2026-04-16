@@ -1,77 +1,116 @@
-# Building macOS Executable
+# Building SBOM Dependency Finder for macOS
 
-This guide explains how to build the macOS executable for the SBOM Dependency Finder on your Apple Silicon Mac.
+Complete guide for building and troubleshooting the macOS executable.
 
-**Note:** This tool only supports Apple Silicon Macs (M1/M2/M3). Intel Macs are not supported.
+**Requirements:** Apple Silicon Mac (M1/M2/M3) only. Intel Macs are not supported.
 
-## Prerequisites
+---
 
-1. **macOS computer** (Intel or Apple Silicon)
-2. **Node.js installed** (v20 or later recommended)
-3. **Terminal access**
+## Quick Start (5 minutes)
 
-## Step-by-Step Instructions
-
-### 1. Transfer the project to your Mac
-
-You can use one of these methods:
-
-**Option A: Clone from GitHub (recommended)**
 ```bash
-git clone https://github.com/Aidan-vG/SBOM_Dependency_Finder.git
-cd SBOM_Dependency_Finder
+# 1. Install dependencies
+npm install
+
+# 2. Build the executable
+npm run build:exe
+
+# 3. Test it works
+./bin/sbom-finder-macos --version
+
+# 4. Test with sample data
+./bin/sbom-finder-macos info test/fixtures/sample-sbom.json
 ```
 
-**Option B: Copy via network/USB**
-- Copy the entire project folder to your Mac
-- Open Terminal and navigate to the project:
-  ```bash
-  cd /path/to/SBOM_Dependency_Finder
-  ```
+That's it! The executable is ready to use without `chmod +x`.
 
-### 2. Install dependencies
+---
 
+## Detailed Build Instructions
+
+### Prerequisites
+
+1. **macOS** with Apple Silicon (M1/M2/M3)
+2. **Node.js** v20 or later
+3. **npm** v10 or later
+
+Check your versions:
+```bash
+node --version    # Should be v20.x.x or later
+npm --version     # Should be v10.x.x or later
+uname -m          # Should show "arm64"
+```
+
+### Build Steps
+
+**Step 1: Install dependencies**
 ```bash
 npm install
 ```
 
-This will install all required packages including the build tools.
-
-### 3. Build the executables
-
-Run the complete build process:
-
+**Step 2: Build the executable**
 ```bash
 npm run build:exe
 ```
 
 This will:
 1. Compile TypeScript to JavaScript
-2. Bundle the application
+2. Bundle the application with esbuild
 3. Create SEA (Single Executable Application) blob
-4. Generate the macOS executable: `bin/sbom-finder-macos`
+4. Generate `bin/sbom-finder-macos`
 5. Code-sign the executable with ad-hoc signature
 6. Set executable permissions automatically
 
-### 4. Verify the executable works
+**Step 3: Verify the build**
+```bash
+# Check file was created
+ls -lh bin/
+# Should show: sbom-finder-macos (~40-50MB)
 
-Test the executable:
+# Check it's executable
+ls -l bin/sbom-finder-macos
+# Should show: -rwxr-xr-x (x = executable)
+```
 
+### Testing the Executable
+
+**Test 1: Version check**
+```bash
+./bin/sbom-finder-macos --version
+# Should show: 0.1.0
+```
+
+**Test 2: Help menu**
 ```bash
 ./bin/sbom-finder-macos --help
+# Should show CLI usage information
 ```
 
-You should see the help menu without needing to run `chmod +x`.
-
-### 5. Test with sample data
-
+**Test 3: SBOM info**
 ```bash
-./bin/sbom-finder-macos-arm64 info test/fixtures/sample-sbom.json
+./bin/sbom-finder-macos info test/fixtures/sample-sbom.json
+# Should show SBOM statistics
 ```
 
-### 6. Package for distribution
+**Test 4: Trace a dependency**
+```bash
+./bin/sbom-finder-macos trace test/fixtures/sample-sbom.json commons-lang3
+# Should show dependency trace tree
+```
 
-To preserve executable permissions when distributing to users, create a zip file:
+**Test 5: Interactive mode**
+```bash
+./bin/sbom-finder-macos
+# Should show interactive menu
+```
+
+If all tests pass, the build is successful! ✅
+
+---
+
+## Packaging for Distribution
+
+Create a zip file that preserves executable permissions:
 
 ```bash
 npm run package
@@ -79,73 +118,278 @@ npm run package
 
 This creates `sbom-finder-macos-v0.1.0.zip` with the executable.
 
-When users unzip this file, the executable will retain its executable permission.
+### Transfer to Windows
 
-### 7. Transfer back to Windows
-
-Copy the following files back to your Windows machine:
-- `bin/sbom-finder-macos`
+Copy these files to your Windows machine:
+- `bin/sbom-finder-macos` (the executable)
 - `sbom-finder-macos-v0.1.0.zip` (for distribution)
 
 You can use:
-- GitHub: Commit and push the binaries
 - Cloud storage (OneDrive, Dropbox, etc.)
 - USB drive
 - Network share
+- GitHub (commit to a release branch)
+
+---
 
 ## Troubleshooting
 
-### "command not found: node"
+### Issue 1: Executable shows Node.js version instead of 0.1.0
 
-Install Node.js:
+**Symptom:**
 ```bash
-# Using Homebrew (recommended)
-brew install node
-
-# Or download from https://nodejs.org
+./bin/sbom-finder-macos --version
+# Shows: v24.14.1 (wrong!)
 ```
 
-### "command not found: npm"
-
-NPM comes with Node.js. If it's missing, reinstall Node.js.
-
-### Code signing fails
-
-The build script uses ad-hoc signing (`codesign --sign -`) which doesn't require a developer certificate. If it fails:
-- The executable will still work but may require `chmod +x` on first use
-- Users can run: `chmod +x sbom-finder-macos`
-
-### "cannot be opened because the developer cannot be verified"
-
-Users seeing this message should:
-1. Right-click the executable
-2. Select "Open"
-3. Click "Open" in the security dialog
-4. Or run: `xattr -cr sbom-finder-macos` to remove quarantine attribute
-
-### "Multiple occurrences of sentinel found"
-
-This happens if you try to rebuild without cleaning the old executable:
-- The build script now automatically removes old executables
-- If you still see this, manually delete the bin/ folder and rebuild
-
-## Distribution Best Practices
-
-1. **Use .zip format** - Preserves executable permissions
-2. **Provide checksums** - For security verification
-3. **Document requirements** - Apple Silicon only (M1/M2/M3 Macs)
-
-## Creating a GitHub Release
-
-Once built, you can create a release with all platform binaries:
-
+**Diagnosis:**
 ```bash
-# On Windows
-zip sbom-finder-windows-v0.1.0.zip bin/sbom-finder.exe
-
-# On Mac (after building)
-cd bin
-zip ../sbom-finder-macos-v0.1.0.zip sbom-finder-macos-arm64 sbom-finder-macos-x64
+# First, test if the bundle works
+node dist/bundle.cjs --version
 ```
 
-Then upload both zip files to a GitHub release.
+**If bundle shows v24.14.1:** Bundle is broken
+```bash
+# Clean and rebuild
+rm -rf dist/ sea-prep.blob sea-config.json
+npm run build:bundle
+
+# Test again
+node dist/bundle.cjs --version
+# Should now show: 0.1.0
+
+# Rebuild executable
+npm run build:exe
+```
+
+**If bundle shows 0.1.0 but executable doesn't:** SEA injection failed
+```bash
+# Check if SEA blob was injected
+strings bin/sbom-finder-macos | grep -c NODE_SEA
+# Should show a number > 0
+
+# If 0, injection failed. Rebuild:
+rm -rf bin/
+npm run build:exe
+```
+
+---
+
+### Issue 2: Node.js REPL opens instead of the application
+
+**Symptom:**
+```
+Welcome to Node.js v24.14.1.
+Type ".help" for more information.
+>
+```
+
+**Cause:** The SEA blob wasn't properly embedded.
+
+**Solution:**
+```bash
+# Clean everything
+rm -rf bin/ dist/ sea-prep.blob sea-config.json node_modules/.cache/
+
+# Rebuild from scratch
+npm run build:exe
+
+# Verify blob was created
+ls -lh sea-prep.blob
+# Should show ~400KB
+
+# Verify executable size
+ls -lh bin/sbom-finder-macos
+# Should show ~40-50MB (NOT 230MB!)
+
+# Test
+./bin/sbom-finder-macos --version
+```
+
+---
+
+### Issue 3: "Multiple occurrences of sentinel found"
+
+**Symptom:**
+```
+Error: Multiple occurences of sentinel "NODE_SEA_FUSE_..." found in the binary
+```
+
+**Cause:** Trying to inject into an executable that already has the blob.
+
+**Solution:**
+```bash
+# Remove old executables
+rm -rf bin/
+
+# Rebuild
+npm run build:exe
+```
+
+The build script now automatically removes old executables, but if you still see this, delete the bin/ folder manually.
+
+---
+
+### Issue 4: "Cannot find module" error
+
+**Symptom:**
+```
+Error: Cannot find module '/path/to/info'
+```
+
+**Cause:** Incorrect command syntax.
+
+**Solution:**
+```bash
+# Just run the executable without arguments for interactive mode
+./bin/sbom-finder-macos
+
+# Or use full command syntax
+./bin/sbom-finder-macos info test/fixtures/sample-sbom.json
+```
+
+---
+
+### Issue 5: Permission denied
+
+**Symptom:**
+```
+permission denied: ./bin/sbom-finder-macos
+```
+
+**Cause:** Missing execute permissions.
+
+**Solution:**
+```bash
+chmod +x bin/sbom-finder-macos
+./bin/sbom-finder-macos
+```
+
+---
+
+### Issue 6: "Cannot be opened because developer cannot be verified"
+
+**Symptom:** macOS Gatekeeper blocks the executable.
+
+**Solution (for users):**
+```bash
+# Option 1: Remove quarantine attribute
+xattr -cr bin/sbom-finder-macos
+
+# Option 2: Right-click → Open → Open (first time only)
+```
+
+**Solution (for builders):**
+```bash
+# Manually code-sign if build script fails
+codesign --sign - --force bin/sbom-finder-macos
+```
+
+---
+
+### Issue 7: Executable is too large (>100MB)
+
+**Symptom:** File is 230MB instead of 40-50MB.
+
+**Cause:** Build corruption or multiple injections.
+
+**Solution:**
+```bash
+# Start completely fresh
+rm -rf bin/ dist/ sea-prep.blob sea-config.json node_modules/.cache/
+
+# Rebuild
+npm run build:exe
+
+# Check size
+ls -lh bin/sbom-finder-macos
+# Should be 40-50MB
+```
+
+---
+
+## Complete Diagnostic Check
+
+Run this to check everything at once:
+
+```bash
+echo "=== System Info ==="
+uname -m
+node --version
+npm --version
+
+echo ""
+echo "=== Build Artifacts ==="
+ls -lh bin/sbom-finder-macos 2>&1 || echo "❌ Executable missing"
+ls -lh dist/bundle.cjs 2>&1 || echo "❌ Bundle missing"
+ls -lh sea-prep.blob 2>&1 || echo "❌ Blob missing"
+
+echo ""
+echo "=== Bundle Test ==="
+node dist/bundle.cjs --version 2>&1
+
+echo ""
+echo "=== Executable Test ==="
+./bin/sbom-finder-macos --version 2>&1
+
+echo ""
+echo "=== SEA Check ==="
+strings bin/sbom-finder-macos 2>/dev/null | grep -c NODE_SEA
+```
+
+**Expected output:**
+```
+=== System Info ===
+arm64
+v20.x.x (or v22.x.x or v24.x.x)
+10.x.x
+
+=== Build Artifacts ===
+-rwxr-xr-x  1 user  staff   45M Apr 16 12:00 bin/sbom-finder-macos
+-rw-r--r--  1 user  staff  250K Apr 16 12:00 dist/bundle.cjs
+-rw-r--r--  1 user  staff  400K Apr 16 12:00 sea-prep.blob
+
+=== Bundle Test ===
+0.1.0
+
+=== Executable Test ===
+0.1.0
+
+=== SEA Check ===
+5
+```
+
+If any section doesn't match, that's where the problem is.
+
+---
+
+## Clean Rebuild (Nuclear Option)
+
+If nothing else works, start completely fresh:
+
+```bash
+# 1. Remove everything
+rm -rf bin/ dist/ sea-prep.blob sea-config.json node_modules/ node_modules/.cache/
+
+# 2. Reinstall dependencies
+npm install
+
+# 3. Build
+npm run build:exe
+
+# 4. Test
+./bin/sbom-finder-macos --version
+```
+
+---
+
+## Getting Help
+
+If you're still stuck:
+
+1. Run the Complete Diagnostic Check above
+2. Note your macOS version: `sw_vers`
+3. Note your Node.js version: `node --version`
+4. Note your chip: `uname -m` (should be arm64)
+5. Copy all error messages
+6. Open an issue on GitHub with this information

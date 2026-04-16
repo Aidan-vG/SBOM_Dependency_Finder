@@ -32,6 +32,7 @@ Download the pre-built executable for your platform:
 **macOS (Apple Silicon only):**
 1. Download `sbom-finder-macos`
 2. Run: `./sbom-finder-macos` (no chmod required)
+3. See [BUILD_MACOS.md](BUILD_MACOS.md) for build instructions and troubleshooting
 
 **No Node.js installation required!** The executables are completely standalone.
 
