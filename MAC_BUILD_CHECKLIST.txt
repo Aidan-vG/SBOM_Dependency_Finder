@@ -1,0 +1,101 @@
+═══════════════════════════════════════════════════════════════
+  SBOM Dependency Finder - macOS Build Checklist
+═══════════════════════════════════════════════════════════════
+
+Follow these steps on your Mac to build executables for Mac users.
+
+STEP 1: Get the latest code
+───────────────────────────────────────────────────────────────
+Open Terminal and run:
+
+    git clone https://github.com/Aidan-vG/SBOM_Dependency_Finder.git
+    cd SBOM_Dependency_Finder
+
+Or if you already have it:
+
+    cd SBOM_Dependency_Finder
+    git pull
+
+
+STEP 2: Install dependencies
+───────────────────────────────────────────────────────────────
+    npm install
+
+
+STEP 3: Build the executables
+───────────────────────────────────────────────────────────────
+    npm run build:exe
+
+Expected output:
+  ✓ Compiled TypeScript
+  ✓ Bundled application
+  ✓ Generated SEA blob
+  ✓ Created bin/sbom-finder-macos-arm64
+  ✓ Created bin/sbom-finder-macos-x64
+  ✓ Code-signed both executables
+
+
+STEP 4: Test the executables
+───────────────────────────────────────────────────────────────
+For Apple Silicon (M1/M2/M3):
+
+    ./bin/sbom-finder-macos-arm64 --help
+    ./bin/sbom-finder-macos-arm64 info test/fixtures/sample-sbom.json
+
+For Intel:
+
+    ./bin/sbom-finder-macos-x64 --help
+    ./bin/sbom-finder-macos-x64 info test/fixtures/sample-sbom.json
+
+✓ Should work WITHOUT needing to run chmod +x
+
+
+STEP 5: Package for distribution
+───────────────────────────────────────────────────────────────
+    npm run package
+
+This creates:
+  • sbom-finder-macos-v0.1.0.zip (contains both arm64 and x64)
+
+The .zip format preserves executable permissions!
+
+
+STEP 6: Transfer back to Windows
+───────────────────────────────────────────────────────────────
+Copy these files to your Windows machine:
+
+    bin/sbom-finder-macos-arm64       (Apple Silicon executable)
+    bin/sbom-finder-macos-x64         (Intel executable)
+    sbom-finder-macos-v0.1.0.zip     (Distribution package)
+
+Methods to transfer:
+  • Git: commit to a branch and pull on Windows
+  • Cloud: Upload to OneDrive/Dropbox
+  • USB: Copy directly
+  • Network: Use shared folder
+
+
+TROUBLESHOOTING
+───────────────────────────────────────────────────────────────
+"node: command not found"
+  → Install Node.js: brew install node
+
+"npm: command not found"
+  → Reinstall Node.js (npm comes with it)
+
+Code signing fails
+  → The executables will still work but users may need to:
+    - Right-click → Open (first time only)
+    - Or run: xattr -cr sbom-finder-macos-arm64
+
+Build succeeds but executable doesn't run
+  → Check architecture: uname -m
+    - arm64 → use sbom-finder-macos-arm64
+    - x86_64 → use sbom-finder-macos-x64
+
+
+═══════════════════════════════════════════════════════════════
+For detailed documentation, see:
+  • QUICKSTART_MAC.md - Quick reference
+  • BUILD_MACOS.md - Full guide with troubleshooting
+═══════════════════════════════════════════════════════════════
