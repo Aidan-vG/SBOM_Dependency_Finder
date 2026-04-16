@@ -163,15 +163,38 @@ npm run build:exe
 ```
 
 **If bundle shows 0.1.0 but executable doesn't:** SEA injection failed
-```bash
-# Check if SEA blob was injected
-strings bin/sbom-finder-macos | grep -c NODE_SEA
-# Should show a number > 0
 
-# If 0, injection failed. Rebuild:
-rm -rf bin/
-npm run build:exe
+**Try this manual fix:**
+```bash
+# Remove the broken executable
+rm bin/sbom-finder-macos
+
+# Copy Node binary fresh
+cp $(which node) bin/sbom-finder-macos
+
+# Remove any existing signature
+codesign --remove-signature bin/sbom-finder-macos 2>/dev/null || true
+
+# Inject the blob manually
+npx postject bin/sbom-finder-macos NODE_SEA_BLOB sea-prep.blob \
+  --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 \
+  --macho-segment-name NODE_SEA
+
+# Sign it
+codesign --sign - --force bin/sbom-finder-macos
+
+# Make executable
+chmod +x bin/sbom-finder-macos
+
+# Check size (should be ~40-50MB, not 230MB)
+ls -lh bin/sbom-finder-macos
+
+# Test it
+./bin/sbom-finder-macos --version
+# Should show: 0.1.0
 ```
+
+If this works, the automated build script has an issue. If this still shows Node version, there's a deeper problem with SEA on your system.
 
 ---
 

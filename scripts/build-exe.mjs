@@ -89,6 +89,18 @@ if (platform === 'win32') {
     copyFileSync(process.execPath, macExe);
     console.log('  ✓ Copied node binary');
 
+    // Remove existing code signature (required before injection on macOS)
+    try {
+      execSync(`codesign --remove-signature "${macExe}"`, {
+        cwd: rootDir,
+        stdio: 'pipe',
+      });
+      console.log('  ✓ Removed existing signature');
+    } catch (signError) {
+      // Node might not be signed, which is fine
+      console.log('  ℹ️  No existing signature to remove');
+    }
+
     // Inject the blob
     execSync(`npx postject "${macExe}" NODE_SEA_BLOB sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --macho-segment-name NODE_SEA`, {
       cwd: rootDir,
@@ -110,6 +122,15 @@ if (platform === 'win32') {
     // Set executable permission
     execSync(`chmod +x "${macExe}"`, { cwd: rootDir });
     console.log('  ✓ Set executable permission');
+
+    // Verify the file size (should be ~40-50MB, not 230MB)
+    const stats = require('fs').statSync(macExe);
+    const sizeMB = (stats.size / (1024 * 1024)).toFixed(1);
+    console.log(`  ℹ️  File size: ${sizeMB}MB`);
+
+    if (stats.size > 100 * 1024 * 1024) {
+      console.warn('  ⚠️  Warning: File size is unusually large (>100MB). Expected ~40-50MB.');
+    }
 
     console.log(`  ✓ Created: ${macExe}`);
     console.log('\n  💡 Tip: Distribute executable in a .zip file to preserve permissions');
