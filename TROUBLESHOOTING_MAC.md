@@ -2,6 +2,8 @@
 
 This guide addresses common issues when building the SBOM Dependency Finder on macOS.
 
+**Requirements:** Apple Silicon Mac (M1/M2/M3) only. Intel Macs are not supported.
+
 ## Issue 1: "Multiple occurrences of sentinel found"
 
 **Error message:**
@@ -43,10 +45,10 @@ Error: Cannot find module '/Users/.../info'
 **Correct:**
 ```bash
 # The executable expects the full command after it
-./bin/sbom-finder-macos-arm64 info test/fixtures/sample-sbom.json
+./bin/sbom-finder-macos info test/fixtures/sample-sbom.json
 
 # Or run without arguments to enter interactive mode
-./bin/sbom-finder-macos-arm64
+./bin/sbom-finder-macos
 ```
 
 **Why this happens:** The SEA (Single Executable Application) bundles the CLI code, and Commander.js expects arguments in a specific format.
@@ -54,7 +56,7 @@ Error: Cannot find module '/Users/.../info'
 **Workaround for testing:**
 Just run the executable without arguments to enter interactive mode:
 ```bash
-./bin/sbom-finder-macos-arm64
+./bin/sbom-finder-macos
 ```
 
 ---
@@ -90,12 +92,12 @@ Type ".help" for more information.
 3. **Check if the injection worked:**
    ```bash
    # The executable should be much larger than node (30-50MB)
-   ls -lh bin/sbom-finder-macos-*
+   ls -lh bin/sbom-finder-macos
    ```
 
 4. **Test the executable:**
    ```bash
-   ./bin/sbom-finder-macos-arm64 --version
+   ./bin/sbom-finder-macos --version
    # Should show version, not REPL
    ```
 
@@ -129,15 +131,15 @@ npm run build:exe
 
 **Error message:**
 ```
-permission denied: ./bin/sbom-finder-macos-arm64
+permission denied: ./bin/sbom-finder-macos
 ```
 
 **Cause:** The executable doesn't have execute permissions (this shouldn't happen if built correctly).
 
 **Solution:**
 ```bash
-chmod +x bin/sbom-finder-macos-arm64
-./bin/sbom-finder-macos-arm64
+chmod +x bin/sbom-finder-macos
+./bin/sbom-finder-macos
 ```
 
 ---
@@ -149,7 +151,7 @@ chmod +x bin/sbom-finder-macos-arm64
 **Solution (for users):**
 ```bash
 # Remove quarantine attribute
-xattr -cr bin/sbom-finder-macos-arm64
+xattr -cr bin/sbom-finder-macos
 
 # Or right-click → Open → Open (first time only)
 ```
@@ -158,7 +160,7 @@ xattr -cr bin/sbom-finder-macos-arm64
 The build script should automatically code-sign with ad-hoc signature. If it fails:
 ```bash
 # Manually code-sign
-codesign --sign - --force bin/sbom-finder-macos-arm64
+codesign --sign - --force bin/sbom-finder-macos
 ```
 
 ---
@@ -170,22 +172,22 @@ After building, verify everything is working:
 ```bash
 # 1. Check the executable exists and has correct size
 ls -lh bin/
-# Should show ~40-50MB files
+# Should show ~40-50MB file
 
 # 2. Check it has execute permission
-ls -l bin/sbom-finder-macos-*
+ls -l bin/sbom-finder-macos
 # Should show -rwxr-xr-x (first x means executable)
 
 # 3. Run with --help
-./bin/sbom-finder-macos-arm64 --help
+./bin/sbom-finder-macos --help
 # Should show usage information
 
 # 4. Run interactive mode
-./bin/sbom-finder-macos-arm64
+./bin/sbom-finder-macos
 # Should show interactive menu
 
 # 5. Run with test data
-./bin/sbom-finder-macos-arm64 info test/fixtures/sample-sbom.json
+./bin/sbom-finder-macos info test/fixtures/sample-sbom.json
 # Should show SBOM information
 ```
 

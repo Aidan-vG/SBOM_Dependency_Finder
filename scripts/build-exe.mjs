@@ -71,33 +71,29 @@ if (platform === 'win32') {
     console.error('❌ Failed to create Windows executable:', error.message);
   }
 } else if (platform === 'darwin') {
-  console.log('\n🍎 Creating macOS executable...');
+  console.log('\n🍎 Creating macOS executable (Apple Silicon)...');
 
-  // Detect current architecture
-  const currentArch = arch();
-  const archName = currentArch === 'arm64' ? 'arm64' : 'x64';
-  const binaryName = `sbom-finder-macos-${archName}`;
+  const binaryName = 'sbom-finder-macos';
 
   try {
-    console.log(`  Building for ${archName} (current architecture)...`);
     const macExe = join(binDir, binaryName);
 
     // Remove existing file if it exists to avoid sentinel conflicts
     if (existsSync(macExe)) {
       rmSync(macExe);
-      console.log(`    ✓ Removed existing executable`);
+      console.log('  ✓ Removed existing executable');
     }
 
     // Copy node binary
     copyFileSync(process.execPath, macExe);
-    console.log(`    ✓ Copied node binary`);
+    console.log('  ✓ Copied node binary');
 
     // Inject the blob
     execSync(`npx postject "${macExe}" NODE_SEA_BLOB sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --macho-segment-name NODE_SEA`, {
       cwd: rootDir,
       stdio: 'inherit',
     });
-    console.log(`    ✓ Injected application blob`);
+    console.log('  ✓ Injected application blob');
 
     // Ad-hoc code sign (required for macOS to run without chmod)
     try {
@@ -105,23 +101,20 @@ if (platform === 'win32') {
         cwd: rootDir,
         stdio: 'pipe',
       });
-      console.log(`    ✓ Code-signed executable`);
+      console.log('  ✓ Code-signed executable');
     } catch (signError) {
-      console.warn(`    ⚠️  Warning: Could not code-sign (may require chmod +x)`);
+      console.warn('  ⚠️  Warning: Could not code-sign (may require chmod +x)');
     }
 
     // Set executable permission
     execSync(`chmod +x "${macExe}"`, { cwd: rootDir });
-    console.log(`    ✓ Set executable permission`);
+    console.log('  ✓ Set executable permission');
 
-    console.log(`    ✓ Created: ${macExe}`);
+    console.log(`  ✓ Created: ${macExe}`);
+    console.log('\n  💡 Tip: Distribute executable in a .zip file to preserve permissions');
   } catch (error) {
-    console.error(`    ❌ Failed to create ${archName} executable:`, error.message);
+    console.error('  ❌ Failed to create macOS executable:', error.message);
   }
-
-  console.log('\n  💡 Note: Only the executable for your current architecture was built.');
-  console.log(`  💡 To build for ${currentArch === 'arm64' ? 'x64' : 'arm64'}, run this script on a ${currentArch === 'arm64' ? 'Intel' : 'Apple Silicon'} Mac.`);
-  console.log('  💡 Distribute executables in a .zip file to preserve executable permissions');
 } else if (platform === 'linux') {
   console.log('\n🐧 Creating Linux executable...');
   try {

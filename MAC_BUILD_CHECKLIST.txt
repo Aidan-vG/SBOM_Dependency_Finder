@@ -2,7 +2,9 @@
   SBOM Dependency Finder - macOS Build Checklist
 ═══════════════════════════════════════════════════════════════
 
-Follow these steps on your Mac to build executables for Mac users.
+REQUIREMENTS: Apple Silicon Mac (M1/M2/M3) only
+
+Follow these steps on your Mac to build the executable for Mac users.
 
 STEP 1: Get the latest code
 ───────────────────────────────────────────────────────────────
@@ -30,22 +32,15 @@ Expected output:
   ✓ Compiled TypeScript
   ✓ Bundled application
   ✓ Generated SEA blob
-  ✓ Created bin/sbom-finder-macos-arm64
-  ✓ Created bin/sbom-finder-macos-x64
-  ✓ Code-signed both executables
+  ✓ Created bin/sbom-finder-macos
+  ✓ Code-signed executable
+  ✓ Set executable permission
 
 
-STEP 4: Test the executables
+STEP 4: Test the executable
 ───────────────────────────────────────────────────────────────
-For Apple Silicon (M1/M2/M3):
-
-    ./bin/sbom-finder-macos-arm64 --help
-    ./bin/sbom-finder-macos-arm64 info test/fixtures/sample-sbom.json
-
-For Intel:
-
-    ./bin/sbom-finder-macos-x64 --help
-    ./bin/sbom-finder-macos-x64 info test/fixtures/sample-sbom.json
+    ./bin/sbom-finder-macos --help
+    ./bin/sbom-finder-macos info test/fixtures/sample-sbom.json
 
 ✓ Should work WITHOUT needing to run chmod +x
 
@@ -55,7 +50,7 @@ STEP 5: Package for distribution
     npm run package
 
 This creates:
-  • sbom-finder-macos-v0.1.0.zip (contains both arm64 and x64)
+  • sbom-finder-macos-v0.1.0.zip
 
 The .zip format preserves executable permissions!
 
@@ -64,8 +59,7 @@ STEP 6: Transfer back to Windows
 ───────────────────────────────────────────────────────────────
 Copy these files to your Windows machine:
 
-    bin/sbom-finder-macos-arm64       (Apple Silicon executable)
-    bin/sbom-finder-macos-x64         (Intel executable)
+    bin/sbom-finder-macos            (macOS executable)
     sbom-finder-macos-v0.1.0.zip     (Distribution package)
 
 Methods to transfer:
@@ -84,14 +78,14 @@ TROUBLESHOOTING
   → Reinstall Node.js (npm comes with it)
 
 Code signing fails
-  → The executables will still work but users may need to:
+  → The executable will still work but users may need to:
     - Right-click → Open (first time only)
-    - Or run: xattr -cr sbom-finder-macos-arm64
+    - Or run: xattr -cr sbom-finder-macos
 
 Build succeeds but executable doesn't run
-  → Check architecture: uname -m
-    - arm64 → use sbom-finder-macos-arm64
-    - x86_64 → use sbom-finder-macos-x64
+  → Make sure you're on Apple Silicon (M1/M2/M3)
+  → Check architecture: uname -m (should show "arm64")
+  → Intel Macs are not supported
 
 
 ═══════════════════════════════════════════════════════════════

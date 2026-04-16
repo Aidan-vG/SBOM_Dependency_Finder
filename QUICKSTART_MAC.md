@@ -1,5 +1,7 @@
 # Quick Start for Mac Users
 
+**Requirements:** Apple Silicon Mac (M1/M2/M3) only. Intel Macs are not supported.
+
 ## Building on Your Mac (5 minutes)
 
 1. **Clone the repository**
@@ -20,14 +22,10 @@
 
 4. **Test it works**
    ```bash
-   ./bin/sbom-finder-macos-arm64 --help
+   ./bin/sbom-finder-macos --help
    ```
 
 That's it! The executable is ready to use without `chmod +x`.
-
-The build automatically creates the correct executable for your Mac:
-- **Apple Silicon (M1/M2/M3)** → `bin/sbom-finder-macos-arm64`
-- **Intel Mac** → `bin/sbom-finder-macos-x64`
 
 ## Packaging for distribution
 
@@ -37,9 +35,7 @@ Create a zip file to share with others:
 npm run package
 ```
 
-This creates `sbom-finder-macos-v0.1.0.zip` with your executable.
-
-**Note:** To include both Intel and Apple Silicon versions, you need to build on both types of Macs and combine the executables before packaging.
+This creates `sbom-finder-macos-v0.1.0.zip` with the executable.
 
 ## Full documentation
 

@@ -29,10 +29,9 @@ Download the pre-built executable for your platform:
 2. Double-click `sbom-finder.exe` to launch
 3. The interactive CLI will open automatically
 
-**macOS:**
-1. Download `sbom-finder-macos-x64` (Intel) or `sbom-finder-macos-arm64` (Apple Silicon)
-2. Make it executable: `chmod +x sbom-finder-macos-*`
-3. Run: `./sbom-finder-macos-x64` or `./sbom-finder-macos-arm64`
+**macOS (Apple Silicon only):**
+1. Download `sbom-finder-macos`
+2. Run: `./sbom-finder-macos` (no chmod required)
 
 **No Node.js installation required!** The executables are completely standalone.
 
@@ -50,7 +49,7 @@ npm install
 
 **With standalone executable:**
 - Windows: Double-click `sbom-finder.exe`
-- macOS/Linux: Run `./sbom-finder-macos-x64` (or appropriate executable)
+- macOS: Run `./sbom-finder-macos`
 
 **From source:**
 ```bash

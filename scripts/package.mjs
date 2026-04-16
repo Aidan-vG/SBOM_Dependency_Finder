@@ -23,8 +23,7 @@ console.log(`📦 Packaging SBOM Dependency Finder v${version}\n`);
 // Check what executables exist
 const executables = {
   windows: existsSync(join(binDir, 'sbom-finder.exe')),
-  macArm64: existsSync(join(binDir, 'sbom-finder-macos-arm64')),
-  macX64: existsSync(join(binDir, 'sbom-finder-macos-x64')),
+  macos: existsSync(join(binDir, 'sbom-finder-macos')),
   linux: existsSync(join(binDir, 'sbom-finder-linux')),
 };
 
@@ -52,32 +51,30 @@ if (executables.windows) {
   }
 }
 
-// Package macOS executables
-if (executables.macArm64 || executables.macX64) {
-  console.log('🍎 Packaging macOS executables...');
+// Package macOS executable
+if (executables.macos) {
+  console.log('🍎 Packaging macOS executable...');
   try {
     const zipName = `sbom-finder-macos-v${version}.zip`;
-    const files = [];
-    if (executables.macArm64) files.push('bin/sbom-finder-macos-arm64');
-    if (executables.macX64) files.push('bin/sbom-finder-macos-x64');
+    const file = 'bin/sbom-finder-macos';
 
     if (process.platform === 'win32') {
       // Use PowerShell on Windows
-      const fileList = files.map(f => f.replace(/\//g, '\\\\')).join(',');
+      const fileList = file.replace(/\//g, '\\\\');
       execSync(`powershell Compress-Archive -Path ${fileList} -DestinationPath ${zipName} -Force`, {
         cwd: rootDir,
         stdio: 'inherit',
       });
     } else {
       // Use zip on Unix-like systems
-      execSync(`zip ${zipName} ${files.join(' ')}`, {
+      execSync(`zip ${zipName} ${file}`, {
         cwd: rootDir,
         stdio: 'inherit',
       });
     }
     console.log(`  ✓ Created: ${zipName}\n`);
   } catch (error) {
-    console.error('  ❌ Failed to package macOS executables\n');
+    console.error('  ❌ Failed to package macOS executable\n');
   }
 }
 
@@ -106,6 +103,6 @@ if (executables.linux) {
 console.log('✅ Packaging complete!\n');
 console.log('Distribution packages:');
 if (executables.windows) console.log(`  - sbom-finder-windows-v${version}.zip`);
-if (executables.macArm64 || executables.macX64) console.log(`  - sbom-finder-macos-v${version}.zip`);
+if (executables.macos) console.log(`  - sbom-finder-macos-v${version}.zip`);
 if (executables.linux) console.log(`  - sbom-finder-linux-v${version}.zip`);
 console.log('\nThese packages preserve executable permissions and are ready for distribution.');
