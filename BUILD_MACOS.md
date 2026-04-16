@@ -4,6 +4,8 @@ Complete guide for building and troubleshooting the macOS executable.
 
 **Requirements:** Apple Silicon Mac (M1/M2/M3) only. Intel Macs are not supported.
 
+**Note:** The build script automatically handles Node.js compatibility. If you have Homebrew Node.js (dynamically linked), it will download the official statically-linked Node.js binary needed for SEA builds.
+
 ---
 
 ## Build Instructions
@@ -34,12 +36,16 @@ npm run build:exe
 ```
 
 This will:
-1. Compile TypeScript to JavaScript
-2. Bundle the application with esbuild
-3. Create SEA (Single Executable Application) blob
-4. Generate `bin/sbom-finder-macos`
-5. Code-sign the executable with ad-hoc signature
-6. Set executable permissions automatically
+1. Detect if your Node.js is statically or dynamically linked
+2. Download official Node.js binary if needed (cached in `.node-cache/`)
+3. Compile TypeScript to JavaScript
+4. Bundle the application with esbuild
+5. Create SEA (Single Executable Application) blob
+6. Generate `bin/sbom-finder-macos`
+7. Code-sign the executable with ad-hoc signature
+8. Set executable permissions automatically
+
+**First build may take longer** as it downloads the official Node.js binary (~50MB). Subsequent builds use the cached binary.
 
 **Step 3: Verify the build**
 ```bash
