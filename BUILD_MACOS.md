@@ -6,27 +6,7 @@ Complete guide for building and troubleshooting the macOS executable.
 
 ---
 
-## Quick Start (5 minutes)
-
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Build the executable
-npm run build:exe
-
-# 3. Test it works
-./bin/sbom-finder-macos --version
-
-# 4. Test with sample data
-./bin/sbom-finder-macos info test/fixtures/sample-sbom.json
-```
-
-That's it! The executable is ready to use without `chmod +x`.
-
----
-
-## Detailed Build Instructions
+## Build Instructions
 
 ### Prerequisites
 
@@ -253,84 +233,6 @@ The build script now automatically removes old executables, but if you still see
 
 ---
 
-### Issue 4: "Cannot find module" error
-
-**Symptom:**
-```
-Error: Cannot find module '/path/to/info'
-```
-
-**Cause:** Incorrect command syntax.
-
-**Solution:**
-```bash
-# Just run the executable without arguments for interactive mode
-./bin/sbom-finder-macos
-
-# Or use full command syntax
-./bin/sbom-finder-macos info test/fixtures/sample-sbom.json
-```
-
----
-
-### Issue 5: Permission denied
-
-**Symptom:**
-```
-permission denied: ./bin/sbom-finder-macos
-```
-
-**Cause:** Missing execute permissions.
-
-**Solution:**
-```bash
-chmod +x bin/sbom-finder-macos
-./bin/sbom-finder-macos
-```
-
----
-
-### Issue 6: "Cannot be opened because developer cannot be verified"
-
-**Symptom:** macOS Gatekeeper blocks the executable.
-
-**Solution (for users):**
-```bash
-# Option 1: Remove quarantine attribute
-xattr -cr bin/sbom-finder-macos
-
-# Option 2: Right-click → Open → Open (first time only)
-```
-
-**Solution (for builders):**
-```bash
-# Manually code-sign if build script fails
-codesign --sign - --force bin/sbom-finder-macos
-```
-
----
-
-### Issue 7: Executable is too large (>100MB)
-
-**Symptom:** File is 230MB instead of 40-50MB.
-
-**Cause:** Build corruption or multiple injections.
-
-**Solution:**
-```bash
-# Start completely fresh
-rm -rf bin/ dist/ sea-prep.blob sea-config.json node_modules/.cache/
-
-# Rebuild
-npm run build:exe
-
-# Check size
-ls -lh bin/sbom-finder-macos
-# Should be 40-50MB
-```
-
----
-
 ## Complete Diagnostic Check
 
 Run this to check everything at once:
@@ -403,16 +305,3 @@ npm run build:exe
 # 4. Test
 ./bin/sbom-finder-macos --version
 ```
-
----
-
-## Getting Help
-
-If you're still stuck:
-
-1. Run the Complete Diagnostic Check above
-2. Note your macOS version: `sw_vers`
-3. Note your Node.js version: `node --version`
-4. Note your chip: `uname -m` (should be arm64)
-5. Copy all error messages
-6. Open an issue on GitHub with this information
