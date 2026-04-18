@@ -36,13 +36,14 @@ export function parseSbomFile(filePath: string): SbomDocument {
   }
 
   // Validate SBOM structure
-  return validateSbom(data);
+  return parseSbomJson(data);
 }
 
 /**
  * Validate that the parsed JSON is a valid CycloneDX SBOM
+ * This is the core parsing function that works in both Node.js and browser environments
  */
-function validateSbom(data: unknown): SbomDocument {
+export function parseSbomJson(data: unknown): SbomDocument {
   if (typeof data !== 'object' || data === null) {
     throw new SbomParseError('SBOM must be a JSON object');
   }

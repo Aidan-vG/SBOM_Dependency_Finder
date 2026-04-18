@@ -18,9 +18,17 @@ This tool enables support engineers to quickly identify the source of any depend
 2. **Fast graph analysis**: Using optimized dependency graph traversal to scan and analyze the SBOM structure
 3. **Dependency tree visualization**: Providing a complete dependency tree showing all levels from the flagged dependency up to the parent Mendix Marketplace widget/module
 
-## Installation
+## Quick Start
 
-### Option 1: Standalone Executable (Recommended)
+### Web App (Easiest)
+
+Use the web app directly in your browser — no installation required:
+
+**[🚀 Launch Web App](https://aidan-vg.github.io/SBOM_Dependency_Finder/)**
+
+Simply drag and drop your SBOM file, then trace dependencies instantly.
+
+### Standalone Executable
 
 Download the pre-built executable for your platform:
 

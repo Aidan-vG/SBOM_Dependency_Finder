@@ -18,6 +18,17 @@ export interface BatchSummary {
 }
 
 /**
+ * Parse dependency names from text content (one per line)
+ * Works in both Node.js and browser environments
+ */
+export function parseDependencyList(text: string): string[] {
+  return text
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0 && !line.startsWith('#')); // Skip empty lines and comments
+}
+
+/**
  * Read dependency names from a file (one per line)
  */
 export function readDependencyList(filePath: string): string[] {
@@ -26,10 +37,7 @@ export function readDependencyList(filePath: string): string[] {
   }
 
   const content = fs.readFileSync(filePath, 'utf-8');
-  return content
-    .split('\n')
-    .map(line => line.trim())
-    .filter(line => line.length > 0 && !line.startsWith('#')); // Skip empty lines and comments
+  return parseDependencyList(content);
 }
 
 /**
