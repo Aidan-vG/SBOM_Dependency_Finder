@@ -1,5 +1,7 @@
 # SBOM Dependency Finder for Mendix
 
+**[🚀 Launch Web App](https://aidan-vg.github.io/SBOM_Dependency_Finder/)**
+
 ## Overview
 
 A web-based tool designed to help users quickly identify the source of JAR dependencies in Mendix Studio Pro projects.
