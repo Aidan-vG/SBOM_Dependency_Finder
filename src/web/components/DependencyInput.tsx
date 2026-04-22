@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { ParsedSbom, ComponentSearchResult } from '../../sbom/types';
 import { searchComponents } from '../../sbom/graph';
+import { isMendixMarketplaceComponent } from '../../sbom/parser';
 import TraceResults from './TraceResults';
 import BatchResults from './BatchResults';
 
@@ -135,21 +136,28 @@ function DependencyInput({ graph }: DependencyInputProps) {
             <div className="search-results">
               <h3>Search Results ({searchResults.length})</h3>
               <div className="results-list">
-                {searchResults.map((result) => (
-                  <div
-                    key={result.bomRef}
-                    className="result-item"
-                    onClick={() => handleSelectResult(result.bomRef)}
-                  >
-                    <div className="result-header">
-                      <span className="result-name">{result.name}</span>
-                      {result.version && <span className="result-version">v{result.version}</span>}
-                      <span className={`badge badge-${result.type}`}>{result.type}</span>
+                {searchResults.map((result) => {
+                  const component = graph.componentsByRef.get(result.bomRef);
+                  const isMarketplace = component && isMendixMarketplaceComponent(component);
+                  const typeLabel = isMarketplace ? 'module' : result.type;
+                  const badgeClass = isMarketplace ? 'marketplace' : result.type;
+
+                  return (
+                    <div
+                      key={result.bomRef}
+                      className="result-item"
+                      onClick={() => handleSelectResult(result.bomRef)}
+                    >
+                      <div className="result-header">
+                        <span className="result-name">{result.name}</span>
+                        {result.version && <span className="result-version">v{result.version}</span>}
+                        <span className={`badge badge-${badgeClass}`}>{typeLabel}</span>
+                      </div>
+                      {result.purl && <div className="result-purl">{result.purl}</div>}
+                      <div className="result-score">Relevance: {result.score}</div>
                     </div>
-                    {result.purl && <div className="result-purl">{result.purl}</div>}
-                    <div className="result-score">Relevance: {result.score}</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

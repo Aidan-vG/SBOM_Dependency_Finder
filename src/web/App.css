@@ -290,7 +290,7 @@ body {
 }
 
 .badge-framework, .badge-marketplace, .badge-module {
-  background: #9333ea;
+  background: var(--color-marketplace);
   color: white;
 }
 
