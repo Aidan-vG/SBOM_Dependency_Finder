@@ -2,15 +2,15 @@
 
 ## Overview
 
-A web-based tool designed to help Mendix support engineers quickly identify the source of JAR dependencies in Mendix Studio Pro projects.
+A web-based tool designed to help users quickly identify the source of JAR dependencies in Mendix Studio Pro projects.
 
 ## Problem Statement
 
-When customers report vulnerable JAR dependencies discovered in security scans of their Mendix Studio Pro projects, it's often unclear which Mendix Marketplace widget or module contains the flagged dependency. This challenge is particularly acute for transitive (indirect) dependencies, where the vulnerable JAR is not directly included but is brought in as a dependency of another dependency.
+When vulnerable JAR dependencies are discovered in security scans of Mendix Studio Pro projects, it's often unclear which Mendix Marketplace widget or module contains the flagged dependency. This challenge is particularly true for transitive (indirect) dependencies, where the vulnerable JAR is not directly included but is brought in as a dependency of another dependency.
 
 ## Solution
 
-This web app enables support engineers to quickly identify the source of any dependency within a Mendix project by:
+This web app enables users to quickly identify the source of any dependency within a Mendix project by:
 
 1. **Uploading an SBOM**: Drop in a CycloneDX SBOM file from a Mendix Studio Pro project
 2. **Live search**: Type a dependency name and see matching results instantly
@@ -76,21 +76,3 @@ npm run build:web
 ```bash
 npm test
 ```
-
-## Project Status
-
-**Current Version: Web App Only**
-
-- ✅ SBOM parsing and validation (CycloneDX 1.4)
-- ✅ Live search with instant results
-- ✅ Single dependency tracing
-- ✅ Batch dependency tracing
-- ✅ Multiple export formats (CSV, JSON)
-- ✅ Clickable marketplace links
-- ✅ Collapsible detailed results
-- ✅ Comprehensive unit tests
-- ✅ Real Mendix SBOM compatibility
-
-## License
-
-Built for Mendix Support Engineers
