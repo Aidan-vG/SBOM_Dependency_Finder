@@ -1,6 +1,6 @@
 # SBOM Dependency Finder for Mendix
 
-**[🚀 Launch Web App](https://aidan-vg.github.io/SBOM_Dependency_Finder/)**
+<a href="https://aidan-vg.github.io/SBOM_Dependency_Finder/" target="_blank" rel="noopener noreferrer"><strong>🚀 Launch Web App</strong></a>
 
 ## Overview
 
