@@ -73,14 +73,14 @@ function BatchResults({ graph, dependencies }: BatchResultsProps) {
     return match ? match[1] : null;
   };
 
-  const generateSummaryLine = (result: typeof results[0]): { text: string; marketplaceId: string | null; moduleName: string | null } | null => {
+  const generateSummaryLine = (result: typeof results[0]): { prefix: string; moduleName: string | null; moduleVersion: string; marketplaceId: string | null } | { text: string } => {
     if (!result.found || !result.result) {
-      return { text: `${result.dependency}: Not found in SBOM`, marketplaceId: null, moduleName: null };
+      return { text: `${result.dependency}: Not found in SBOM` };
     }
 
     const completePaths = result.result.paths.filter(p => p.isComplete);
     if (completePaths.length === 0) {
-      return { text: `${result.dependency}: No marketplace module found (orphan dependency)`, marketplaceId: null, moduleName: null };
+      return { text: `${result.dependency}: No marketplace module found (orphan dependency)` };
     }
 
     const firstPath = completePaths[0];
@@ -92,22 +92,25 @@ function BatchResults({ graph, dependencies }: BatchResultsProps) {
 
     if (firstPath.components.length === 1) {
       return {
-        text: `${result.dependency}: Root marketplace module itself`,
+        prefix: `${result.dependency}: Root marketplace module itself`,
+        moduleName: null,
+        moduleVersion: '',
         marketplaceId,
-        moduleName,
       };
     } else if (firstPath.components.length === 2) {
       return {
-        text: `${result.dependency}: Direct dependency of ${moduleName}${moduleVersion}`,
-        marketplaceId,
+        prefix: `${result.dependency}: Direct dependency of `,
         moduleName,
+        moduleVersion,
+        marketplaceId,
       };
     } else {
       const depth = firstPath.components.length - 2;
       return {
-        text: `${result.dependency}: Transitive dependency (depth ${depth}) of ${moduleName}${moduleVersion}`,
-        marketplaceId,
+        prefix: `${result.dependency}: Transitive dependency (depth ${depth}) of `,
         moduleName,
+        moduleVersion,
+        marketplaceId,
       };
     }
   };
@@ -156,19 +159,34 @@ function BatchResults({ graph, dependencies }: BatchResultsProps) {
             const summaryLine = generateSummaryLine(result);
             if (!summaryLine) return null;
 
+            // Simple text-only line (not found or orphan)
+            if ('text' in summaryLine) {
+              return (
+                <div key={result.dependency} className="summary-line">
+                  <span className="summary-text">{summaryLine.text}</span>
+                </div>
+              );
+            }
+
+            // Line with module name as link
             return (
               <div key={result.dependency} className="summary-line">
-                <span className="summary-text">{summaryLine.text}</span>
-                {summaryLine.marketplaceId && summaryLine.moduleName && (
-                  <a
-                    href={`https://marketplace.mendix.com/link/component/${summaryLine.marketplaceId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="marketplace-link"
-                  >
-                    View in Marketplace →
-                  </a>
-                )}
+                <span className="summary-text">
+                  {summaryLine.prefix}
+                  {summaryLine.moduleName && summaryLine.marketplaceId ? (
+                    <a
+                      href={`https://marketplace.mendix.com/link/component/${summaryLine.marketplaceId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="marketplace-link-inline"
+                    >
+                      {summaryLine.moduleName}
+                    </a>
+                  ) : (
+                    summaryLine.moduleName
+                  )}
+                  {summaryLine.moduleVersion}
+                </span>
               </div>
             );
           })}

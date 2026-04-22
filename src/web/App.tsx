@@ -5,7 +5,6 @@ import { buildGraph } from '../sbom/graph';
 import FileUpload from './components/FileUpload';
 import SbomInfo from './components/SbomInfo';
 import DependencyInput from './components/DependencyInput';
-import SearchPanel from './components/SearchPanel';
 
 type AppState =
   | { status: 'idle' }
@@ -82,10 +81,6 @@ function App() {
             </div>
 
             <SbomInfo sbom={state.sbom} graph={state.graph} />
-
-            <div className="divider" />
-
-            <SearchPanel graph={state.graph} />
 
             <div className="divider" />
 

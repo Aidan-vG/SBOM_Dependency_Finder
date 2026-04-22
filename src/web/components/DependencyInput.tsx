@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { ParsedSbom } from '../../sbom/types';
+import type { ParsedSbom, ComponentSearchResult } from '../../sbom/types';
 import { searchComponents } from '../../sbom/graph';
 import TraceResults from './TraceResults';
 import BatchResults from './BatchResults';
@@ -13,10 +13,30 @@ type Mode = 'single' | 'batch';
 function DependencyInput({ graph }: DependencyInputProps) {
   const [mode, setMode] = useState<Mode>('single');
   const [singleInput, setSingleInput] = useState('');
+  const [searchResults, setSearchResults] = useState<ComponentSearchResult[]>([]);
   const [batchInput, setBatchInput] = useState('');
   const [selectedBomRef, setSelectedBomRef] = useState<string | null>(null);
   const [batchDeps, setBatchDeps] = useState<string[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const handleSingleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuery = e.target.value;
+    setSingleInput(newQuery);
+    setError(null);
+
+    // Live search as user types (minimum 2 characters)
+    if (newQuery.trim().length >= 2) {
+      const results = searchComponents(graph, newQuery.trim(), { limit: 10 });
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  const handleSelectResult = (bomRef: string) => {
+    setSelectedBomRef(bomRef);
+    setSearchResults([]);
+  };
 
   const handleSingleTrace = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +54,7 @@ function DependencyInput({ graph }: DependencyInputProps) {
     }
 
     setSelectedBomRef(results[0].bomRef);
+    setSearchResults([]);
   };
 
   const handleBatchTrace = (e: React.FormEvent) => {
@@ -62,6 +83,8 @@ function DependencyInput({ graph }: DependencyInputProps) {
     setSelectedBomRef(null);
     setBatchDeps(null);
     setError(null);
+    setSingleInput('');
+    setSearchResults([]);
   };
 
   return (
@@ -88,21 +111,49 @@ function DependencyInput({ graph }: DependencyInputProps) {
       </div>
 
       {mode === 'single' && !selectedBomRef && (
-        <form onSubmit={handleSingleTrace} className="trace-form">
+        <div className="trace-form">
           <label>
             Dependency Name
             <input
               type="text"
               value={singleInput}
-              onChange={(e) => setSingleInput(e.target.value)}
+              onChange={handleSingleInputChange}
               placeholder="e.g., commons-lang3, log4j-core"
               className="trace-input"
             />
           </label>
-          <button type="submit" className="btn-primary">
-            Trace Dependency
-          </button>
-        </form>
+
+          {singleInput.trim().length >= 2 && searchResults.length === 0 && (
+            <div className="search-results">
+              <div className="no-results">
+                No components found matching "{singleInput}"
+              </div>
+            </div>
+          )}
+
+          {searchResults.length > 0 && (
+            <div className="search-results">
+              <h3>Search Results ({searchResults.length})</h3>
+              <div className="results-list">
+                {searchResults.map((result) => (
+                  <div
+                    key={result.bomRef}
+                    className="result-item"
+                    onClick={() => handleSelectResult(result.bomRef)}
+                  >
+                    <div className="result-header">
+                      <span className="result-name">{result.name}</span>
+                      {result.version && <span className="result-version">v{result.version}</span>}
+                      <span className={`badge badge-${result.type}`}>{result.type}</span>
+                    </div>
+                    {result.purl && <div className="result-purl">{result.purl}</div>}
+                    <div className="result-score">Relevance: {result.score}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       {mode === 'batch' && !batchDeps && (
