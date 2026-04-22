@@ -91,7 +91,6 @@ function App() {
 
       <footer className="app-footer">
         <p>
-          Built for Mendix Support Engineers •
           <a href="https://github.com/Aidan-vG/SBOM_Dependency_Finder" target="_blank" rel="noopener noreferrer">
             View on GitHub
           </a>
