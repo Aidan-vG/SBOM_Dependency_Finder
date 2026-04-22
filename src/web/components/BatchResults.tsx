@@ -26,47 +26,6 @@ function BatchResults({ graph, dependencies }: BatchResultsProps) {
     });
   };
 
-  const exportCSV = () => {
-    const header = 'Dependency,Found,Marketplace Module,Module Version,Path Count,Status\n';
-    const rows = results.map((r) => {
-      if (!r.found || !r.result) {
-        return `"${r.dependency}",No,,,0,"${r.error || 'Not found'}"`;
-      }
-
-      const completePaths = r.result.paths.filter(p => p.isComplete);
-      if (completePaths.length === 0) {
-        return `"${r.dependency}",Yes,,,0,"No marketplace paths"`;
-      }
-
-      // Get the marketplace module (last component in path)
-      const marketplaceModule = completePaths[0].components[completePaths[0].components.length - 1];
-      const moduleName = marketplaceModule.name;
-      const moduleVersion = marketplaceModule.version || '';
-
-      return `"${r.dependency}",Yes,"${moduleName}","${moduleVersion}",${completePaths.length},"Complete"`;
-    });
-
-    const csv = header + rows.join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'batch-trace-results.csv';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const exportJSON = () => {
-    const json = JSON.stringify(results, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'batch-trace-results.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   const extractMarketplaceId = (purl: string | undefined): string | null => {
     if (!purl) return null;
     const match = purl.match(/appstorepackageid=(\d+)/);
@@ -140,15 +99,6 @@ function BatchResults({ graph, dependencies }: BatchResultsProps) {
             <span className="summary-label">Without Marketplace Paths</span>
             <span className="summary-value warning">{summary.withoutMarketplacePaths}</span>
           </div>
-        </div>
-
-        <div className="export-buttons">
-          <button onClick={exportCSV} className="btn-secondary">
-            Export CSV
-          </button>
-          <button onClick={exportJSON} className="btn-secondary">
-            Export JSON
-          </button>
         </div>
       </div>
 

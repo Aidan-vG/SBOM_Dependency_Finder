@@ -15,7 +15,7 @@ This web app enables users to quickly identify the source of any dependency with
 1. **Uploading an SBOM**: Drop in a CycloneDX SBOM file from a Mendix Studio Pro project
 2. **Live search**: Type a dependency name and see matching results instantly
 3. **Dependency visualization**: View complete dependency paths showing all levels from the flagged dependency up to the parent Mendix Marketplace widget/module
-4. **Batch tracing**: Trace multiple dependencies at once and export results as CSV or JSON
+4. **Batch tracing**: Trace multiple dependencies at once
 
 ## Features
 
@@ -28,7 +28,6 @@ This web app enables users to quickly identify the source of any dependency with
 ### Batch Trace
 - **Multiple dependencies** - Paste a list of dependencies (one per line)
 - **Summary view** - See all results at a glance with clickable marketplace links
-- **Export options** - Download results as CSV or JSON
 - **Detailed results** - Expand any dependency to see its full path
 
 ### SBOM Information
@@ -42,7 +41,6 @@ This web app enables users to quickly identify the source of any dependency with
    - Use the **Single Dependency** tab to search and trace one dependency
    - Use the **Batch Trace** tab to analyze multiple dependencies at once
 3. **View results**: Click on dependency names or expand detailed results to see full paths
-4. **Export data**: Use the CSV or JSON export buttons in batch mode
 
 ## Technical Details
 
