@@ -78,7 +78,7 @@ function FileUpload({ onFileLoad }: FileUploadProps) {
       <div className="upload-info">
         <h3>What is this tool?</h3>
         <p>
-          This tool helps Mendix support engineers trace vulnerable JAR dependencies
+          This tool helps users trace vulnerable JAR dependencies
           back to their parent Marketplace widgets and modules. Upload a CycloneDX
           SBOM from a Mendix project to get started.
         </p>
