@@ -14,19 +14,25 @@ function PathTree({ path, targetBomRef }: PathTreeProps) {
     return 'other';
   };
 
+  const getComponentTypeLabel = (component: typeof path.components[0]) => {
+    if (isMendixMarketplaceComponent(component)) return 'module';
+    return component.type;
+  };
+
   return (
     <div className="path-tree">
       {path.components.map((component, idx) => {
         const isTarget = component['bom-ref'] === targetBomRef;
         const isLast = idx === path.components.length - 1;
         const componentClass = getComponentClass(component);
+        const typeLabel = getComponentTypeLabel(component);
 
         return (
           <div key={idx} className={`tree-node ${isTarget ? 'target' : ''}`}>
             {idx > 0 && <div className="tree-connector" />}
             <div className={`component-item ${componentClass}`}>
               <span className="component-name">{getComponentDisplayName(component)}</span>
-              <span className={`badge badge-${component.type}`}>{component.type}</span>
+              <span className={`badge badge-${componentClass}`}>{typeLabel}</span>
               {isTarget && <span className="target-marker">← Target</span>}
             </div>
             {!isLast && <div className="tree-arrow">↓</div>}
