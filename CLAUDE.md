@@ -1,31 +1,32 @@
-# Mendix AI Engineering Toolkit — Claude Code Instructions
+# SBOM Dependency Finder — Claude Code Instructions
 
-## Safety Rules (NON-NEGOTIABLE)
+## Project Overview
 
-- NEVER run commands that delete, destroy, or modify production resources
-- NEVER use AWS credentials for production accounts — only sandbox accounts
-- NEVER deploy code, infrastructure, or configuration changes — a human must do this
-- NEVER run `terraform apply`, `terraform destroy`, `kubectl apply`, `kubectl delete` against production
-- NEVER read or output secrets, API keys, tokens, or credentials from files or environment variables
-- NEVER run commands with `sudo`
-- NEVER run `rm -rf` on any path outside the current project directory
-- NEVER disable, bypass, or modify the guardrail hooks in `.claude/hooks/`
-- NEVER push to `main` or `master` branches directly
+This is a **web-only** React application for tracing JAR dependencies in Mendix SBOMs to their parent marketplace modules.
 
-## When In Doubt
+## Technology Stack
 
-If you are unsure whether a command is safe to run, **do not run it**. Instead, explain what you would do and let the human decide.
+- **Frontend**: React + TypeScript + Vite
+- **Testing**: Vitest
+- **SBOM Format**: CycloneDX 1.4 JSON
 
-## AWS Context
+## Development Commands
 
-- We use AWS Bedrock for AI model invocation
-- Sandbox accounts are accessed via Mendix SSO
-- Production accounts exist on the same machine — DO NOT use them
-- If a command references an AWS profile or region you don't recognize, STOP and ask
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm test` - Run tests
+- `npm run test:watch` - Run tests in watch mode
 
 ## Coding Standards
 
-- Follow existing code patterns in the repository
-- Run tests after making changes: see project-specific test commands
+- Follow existing React/TypeScript patterns in the codebase
+- Run tests after making changes
 - Do not add dependencies without asking
-- Do not refactor code beyond what was requested
+- Keep components focused and reusable
+- Use existing CSS class names for consistent styling
+
+## Safety Rules
+
+- NEVER read or output secrets, API keys, or credentials
+- NEVER run destructive git commands without confirmation
+- NEVER push to `main` branch without user approval
