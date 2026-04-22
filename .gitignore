@@ -1,6 +1,6 @@
-.claude/audit.log
-.claude/settings.local.json
-.claude/plans/
+# Claude Code (development only - not needed in remote)
+.claude/
+CLAUDE.md
 
 # Node.js
 node_modules/
