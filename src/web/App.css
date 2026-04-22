@@ -289,8 +289,8 @@ body {
   font-weight: 500;
 }
 
-.badge-framework, .badge-marketplace {
-  background: var(--color-marketplace);
+.badge-framework, .badge-marketplace, .badge-module {
+  background: #9333ea;
   color: white;
 }
 

@@ -8,8 +8,10 @@ interface SbomInfoProps {
 }
 
 function SbomInfo({ sbom, graph }: SbomInfoProps) {
+  // Count components by semantic type (module for marketplace, otherwise raw type)
   const componentsByType = sbom.components.reduce((acc, comp) => {
-    acc[comp.type] = (acc[comp.type] || 0) + 1;
+    const type = isMendixMarketplaceComponent(comp) ? 'module' : comp.type;
+    acc[type] = (acc[type] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
