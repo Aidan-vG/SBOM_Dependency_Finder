@@ -1,4 +1,3 @@
-import React from 'react';
 import type { SbomDocument, ParsedSbom } from '../../sbom/types';
 import { isMendixMarketplaceComponent } from '../../sbom/parser';
 

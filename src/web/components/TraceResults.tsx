@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { ParsedSbom } from '../../sbom/types';
 import { traceToRoot } from '../../sbom/graph';
 import { getComponentDisplayName } from '../../sbom/parser';
