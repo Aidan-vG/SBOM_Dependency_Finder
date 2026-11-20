@@ -39,25 +39,6 @@ function DependencyInput({ graph }: DependencyInputProps) {
     setSearchResults([]);
   };
 
-  const handleSingleTrace = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    if (!singleInput.trim()) {
-      setError('Please enter a dependency name');
-      return;
-    }
-
-    const results = searchComponents(graph, singleInput.trim(), { limit: 1 });
-    if (results.length === 0) {
-      setError(`No component found matching "${singleInput}"`);
-      return;
-    }
-
-    setSelectedBomRef(results[0].bomRef);
-    setSearchResults([]);
-  };
-
   const handleBatchTrace = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
