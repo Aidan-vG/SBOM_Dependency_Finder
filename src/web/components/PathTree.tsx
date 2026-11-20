@@ -1,4 +1,3 @@
-import React from 'react';
 import type { DependencyPath } from '../../sbom/types';
 import { getComponentDisplayName, isMendixMarketplaceComponent, isJarLibrary } from '../../sbom/parser';
 

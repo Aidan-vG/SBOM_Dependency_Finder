@@ -1,4 +1,3 @@
-import React from 'react';
 import type { SbomDocument, ParsedSbom } from '../../sbom/types';
 import { isMendixMarketplaceComponent } from '../../sbom/parser';
 
@@ -15,8 +14,8 @@ function SbomInfo({ sbom, graph }: SbomInfoProps) {
     return acc;
   }, {} as Record<string, number>);
 
-  const rootComponents = graph.rootComponents.map(ref => graph.componentsByRef.get(ref)!);
-  const marketplaceModules = rootComponents.filter(isMendixMarketplaceComponent);
+  // buildGraph only collects marketplace modules with no dependents as roots
+  const marketplaceModules = graph.rootComponents;
 
   return (
     <div className="sbom-info">

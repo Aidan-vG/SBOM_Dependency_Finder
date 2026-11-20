@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { SbomDocument, ParsedSbom } from '../sbom/types';
 import { parseSbomJson } from '../sbom/parser';
 import { buildGraph } from '../sbom/graph';

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { ParsedSbom } from '../../sbom/types';
 import { traceBatch, generateBatchSummary } from '../../batch';
 import PathTree from './PathTree';
